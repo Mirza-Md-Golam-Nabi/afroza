@@ -2,22 +2,13 @@
 @section('maincontent')
 
 <style>
-   thead th{
-      top: 0%;
-      background: #f00;
-      z-index: 3;
-   }
-   thead th:nth-child(1){
-      position: sticky;
-      left: 0%;
-      z-index: 6;
-      background: #f00; 
-   }
    tbody td:nth-child(1){
       position: sticky;
       left: 0;
       z-index: 3;
-      background: #f00; 
+   }
+   tbody td:nth-child(1){
+      background-color: #ddd;
    }
 </style>
 
@@ -26,7 +17,7 @@
 </div>
 <div class="clearfix mt-3">
    <div id="dataShow" style="width: 100%;overflow-x:scroll;">
-      <table class="table table-striped table-sm" >
+      <table class="table table-striped table-sm">
          <thead>
          <tr> 
              <th scope="col">প্রোডাক্ট নাম</th>
@@ -47,14 +38,29 @@
          </tbody>
       </table>
    </div>
-   <select id="yearValue" class="form-control" style="width: auto; display:inline">
-      <option value="{{ 10 }}">{{ "Last 12 Month" }}</option>
-      @for($i=0; $i < 3; $i++)
-      @php $year_value = 2020 + $i; @endphp
-      <option value="{{ $year_value }}">{{ $year_value }}</option>
-      @endfor
-   </select>
-   <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#export">Export</button>
+   <div class="mt-2">
+      <select id="yearValue" class="form-control" style="width: auto; display:inline">
+         <option value="{{ 10 }}">{{ "Last 12 Month" }}</option>
+         @for($i=2021; $i <= date("Y"); $i++)
+         @php $year_value = $i; @endphp
+         <option value="{{ $year_value }}">{{ $year_value }}</option>
+         @endfor
+      </select>
+      <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#export">Export</button>
+   </div>
+   <div class="mt-2">
+      
+      @foreach(SessionController::brandList() as $brandData)
+   @if($brandData->brand_name != "Others" && $brandData->brand_name != $brand)
+   <?php 
+      $divHead = $brandData->brand_name;
+      $url = 'admin.report.company';
+      $param = ['name'=>$brandData->brand_name];
+   ?>
+   <a href="{{ route($url, $param) }}" class="text-primary" style="padding: 5px 5px; margin: 0px 15px;">{{ $divHead }}</a>
+   @endif
+   @endforeach
+   </div>
 
    <div class="modal fade" id="export" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -67,8 +73,8 @@
           </div>
           <div class="modal-body">
              <a href="{{ route('admin.export.report.company', ['name'=>$brand,'serial'=>0,'year'=>10]) }}"><button class="btn btn-sm btn-primary">{{ "Last 12 Month" }}</button></a>
-             @for($i=0; $i < 3; $i++)
-               @php $year_value = 2020 + $i; @endphp
+             @for($i=2021; $i <= date("Y"); $i++)
+               @php $year_value = $i; @endphp
                <a href="{{ route('admin.export.report.company', ['name'=>$brand,'serial'=>1,'year'=>$year_value]) }}"><button class="btn btn-sm btn-primary">{{ $year_value }}</button></a>
                @endfor
           </div>
