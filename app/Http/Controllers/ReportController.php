@@ -125,8 +125,8 @@ class ReportController extends Controller
                         ->get();
 
             foreach ($stockoutData as $key => $value) {
-                if($this->filterByDow($stockSummary,$value->product_id)){
-                    $resultArr = $this->filterByDow($stockSummary,$value->product_id);
+                if(SessionController::filterByDow($stockSummary,$value->product_id)){
+                    $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
                     $newarray = array_keys($resultArr);
                     if($i == 0)
                         $stockSummary[$newarray[0]]['current'] = $value->stockout;
@@ -173,8 +173,8 @@ class ReportController extends Controller
                         ->get();
 
             foreach ($stockoutData as $key => $value) {
-                if($this->filterByDow($stockSummary,$value->product_id)){
-                    $resultArr = $this->filterByDow($stockSummary,$value->product_id);
+                if(SessionController::filterByDow($stockSummary,$value->product_id)){
+                    $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
                     $newarray = array_keys($resultArr);
                     if($i == 0)
                         $stockSummary[$newarray[0]]['current_out'] = $value->stockout;
@@ -251,8 +251,8 @@ class ReportController extends Controller
                         ->get();
 
             foreach ($stockoutData as $key => $value) {
-                if($this->filterByDow($stockSummary,$value->product_id)){
-                    $resultArr = $this->filterByDow($stockSummary,$value->product_id);
+                if(SessionController::filterByDow($stockSummary,$value->product_id)){
+                    $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
                     $newarray = array_keys($resultArr);
                     if($i == 0)
                         $stockSummary[$newarray[0]]['current_out'] = $value->stockout;
