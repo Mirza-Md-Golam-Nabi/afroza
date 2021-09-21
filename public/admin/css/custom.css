@@ -1,0 +1,150 @@
+
+.top-bar {
+   padding-bottom: 0px;
+   background-color: #F4F4F4;
+   min-height: 28px;
+}
+.tikercntl {
+   position: absolute;
+   top: 0px;
+   right: 52px;
+}
+.heightSize{ max-height: 320px; }
+.slideSize{
+   display: block;
+   width: 100%;
+   height: auto;
+}
+.check{
+   padding: 1px 5px 5px 20px;
+   background: url(../images/background/calendar.jpg) no-repeat 5px 4px;
+}
+
+.top-nav.clearfix ul li a {
+   color: #222222;
+   text-decoration: none;
+   line-height: 38px;
+   display: block;
+}
+a.locate-us {
+   padding: 0px 7px 0px 30px;
+   background: url(../images/background/map.png) no-repeat 5px 4px;
+}
+a.call-us {
+   padding: 0px 7px 0px 30px;
+   background: url(../images/background/phone.png) no-repeat 5px 4px;
+}
+.call-us{
+   color:#c92828 !important;
+   font-weight: 700;
+}
+a.search-btn {
+   padding: 0px 7px 0px 30px;
+   background: url(../images/background/search.png) no-repeat 5px center;
+   transition: all 0.3s ease;
+}
+a.search-btn:hover { transform: scale(1.1); }
+a.search-btn.active{
+   color: #CD2122!important;
+   transform: scale(1.1);
+}
+section.top-menu {
+   padding: 7px 0px;
+   background: #fff;
+}
+.logo {
+   float: left;
+   position: relative;
+   z-index: 2;
+}
+.top-nav { margin-top: 8px; }
+.top-nav ul { margin: 0px; }
+.list-inline{ display:block; }
+.list-inline li{ display:inline-block; }
+.top-nav.clearfix ul li:nth-child(1){ border-right: 1px solid #e4e4e4; }
+.list-inline > li {padding-top: 6px;}
+section { padding: 40px 0px; }
+section.top-menu a.login {   
+   border: 1px solid #c92828;
+   border-radius: 22px;
+   padding: 0px 23px;
+   font-size: 14px;
+   font-family: 'ProximaNova-Semibold';
+}
+.search-form {
+   margin-right: 65px;
+   display: none;
+   position: absolute;
+   float: right;
+   z-index: 9999999;
+   right: 110px;
+   top: -4px;
+   background-color: #FFF;
+   border: 1px solid #ffe4e4;
+   box-shadow: 0px 0px 10px 2px #ffe4e4;
+}
+img { max-width: 100%; }
+ul.important-bank-info{
+	float:left;
+	width:100%;
+	list-style:none;
+	margin-top: -15px;
+	position: relative;
+	z-index: 555;
+	margin-bottom:20px;
+}
+ul.important-bank-info li:first-child{margin-left:0.25%;}
+ul.important-bank-info li
+{
+   color:#333333;
+   float: left;
+   width: 15%;
+   padding:10px 0;
+   min-height: 140px;
+   display: inline-block;
+   text-align: center;
+   position:relative;   
+   margin-left: 1%;
+   border-radius:10px;
+   background-color:#009933;   
+}
+.product-name{
+   color:rgb(228, 240, 245) !important;
+   font-size: 14px;
+   font-family: initial;
+}
+h3.product-name {
+   font-weight: 600;
+   margin: 8px 0 5px 0;
+}
+a.important-bank-credit {
+   width: 60%;
+   height: auto;
+   margin: 10px 0;
+   display: inline-block;
+   font-family: cursive;
+}
+ul.important-bank-info li.contactcenterli a img { height: 35px; }
+.more-product {
+   font-size: 14px;
+   color: #4a4646;
+}
+a.important-portal { width: 45% !important; }
+.ft-menu{ padding-left: 15px; }
+
+.description{
+	text-align: justify;
+	overflow:hidden;
+	height:calc(6*1.5rem);
+}
+
+.title-style{
+   text-align: justify;
+   font-family: 'Montserrat', sans-serif;
+	margin:8px 0px 15px 0px;
+	color:#000;
+	font-size: 18px;
+	font-weight:700;
+	overflow:hidden;
+	height:calc(2*1.3rem);
+}
