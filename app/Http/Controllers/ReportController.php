@@ -40,11 +40,17 @@ class ReportController extends Controller
         $stockinData = Stockin::select('date')
                     ->orderBy('date','desc')
                     ->groupBy('date')
+                    ->orderBy('date', 'desc')
+                    ->skip(0)
+                    ->take(20)
                     ->get();
 
         $stockoutData = Stockout::select('date')
                     ->orderBy('date','desc')
                     ->groupBy('date')
+                    ->orderBy('date', 'desc')
+                    ->skip(0)
+                    ->take(30)
                     ->get();
 
         $data = [];
