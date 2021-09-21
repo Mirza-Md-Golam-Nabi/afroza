@@ -21,6 +21,8 @@ class SessionController extends Controller
               ->select('date')
               ->groupBy('date')
               ->orderBy('date', 'desc')
+              ->skip(0)
+              ->take(30)
               ->get();
     }
 
