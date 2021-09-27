@@ -6,7 +6,7 @@
             <br>
             <span>User - {{ Auth::user()->mobile }}</span>
          @endif
-      </p> 
+      </p>
       <li>
          <a href="#type" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Create</a>
          <ul class="collapse list-unstyled" id="type">

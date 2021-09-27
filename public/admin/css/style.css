@@ -58,7 +58,20 @@ a:focus{
    transition: all 0.3s;
    position: fixed;
    height: 92%;
+   overflow-y: scroll;
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#sidebar::-webkit-scrollbar {
+   display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+#sidebar {
+   -ms-overflow-style: none;  /* IE and Edge */
+   scrollbar-width: none;  /* Firefox */
+}
+
 #sidebar.active{
    margin-left: -250px;
 }
