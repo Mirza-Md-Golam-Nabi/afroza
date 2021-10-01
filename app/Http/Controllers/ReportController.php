@@ -129,6 +129,10 @@ class ReportController extends Controller
             } 
         }
 
+        usort($stockSummary, function ($object1, $object2) { 
+            return $object1['product_name'] > $object2['product_name']; 
+        });
+
         return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate]);
     }
 
