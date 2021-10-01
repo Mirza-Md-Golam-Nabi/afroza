@@ -33,14 +33,12 @@
    @include('admin.includes.div')
 
    @foreach(SessionController::brandList() as $brand)
-   @if($brand->brand_name != "Others")
    <?php 
       $divHead = $brand->brand_name." Report";
       $url = 'admin.report.company';
       $param = ['name'=>$brand->brand_name];
    ?>
    @include('admin.includes.divWithParam')
-   @endif
    @endforeach
 
 

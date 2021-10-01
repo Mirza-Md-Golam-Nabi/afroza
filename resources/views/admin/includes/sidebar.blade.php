@@ -34,10 +34,8 @@
             <li><a href="{{ route('admin.report.last.3.month') }}">Last 3 Month Report</a></li>
             <li><a href="{{ route('admin.report.product.list') }}">Monthly Report</a></li>
             <li><a href="{{ route('admin.report.yearly') }}">Yearly Report</a></li>
-            @foreach(SessionController::brandList() as $brand)
-            @if($brand->brand_name != "Others")
-            <li><a href="{{ route('admin.report.company',['name'=>$brand->brand_name]) }}">{{ $brand->brand_name." Report" }}</a></li>
-            @endif
+            @foreach(SessionController::brandList() as $brand)            
+            <li><a href="{{ route('admin.report.company',['name'=>$brand->brand_name]) }}">{{ $brand->brand_name." Report" }}</a></li>            
             @endforeach
          </ul>
        </li>

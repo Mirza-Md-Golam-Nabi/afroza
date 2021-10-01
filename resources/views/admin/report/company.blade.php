@@ -51,7 +51,7 @@
    <div class="mt-2">
       
       @foreach(SessionController::brandList() as $brandData)
-   @if($brandData->brand_name != "Others" && $brandData->brand_name != $brand)
+   @if($brandData->brand_name != $brand)
    <?php 
       $divHead = $brandData->brand_name;
       $url = 'admin.report.company';
@@ -72,10 +72,10 @@
             </button>
           </div>
           <div class="modal-body">
-             <a href="{{ route('admin.export.report.company', ['name'=>$brand,'serial'=>0,'year'=>10]) }}"><button class="btn btn-sm btn-primary">{{ "Last 12 Month" }}</button></a>
+             <a href="{{ route('admin.export.report.company', ['name'=>$brand,'serial'=>0,'year'=>10]) }}"><button class="btn btn-sm btn-primary" onclick="modalDismiss()">{{ "Last 12 Month" }}</button></a>
              @for($i=2021; $i <= date("Y"); $i++)
                @php $year_value = $i; @endphp
-               <a href="{{ route('admin.export.report.company', ['name'=>$brand,'serial'=>1,'year'=>$year_value]) }}"><button class="btn btn-sm btn-primary">{{ $year_value }}</button></a>
+               <a href="{{ route('admin.export.report.company', ['name'=>$brand,'serial'=>1,'year'=>$year_value]) }}"><button class="btn btn-sm btn-primary" onclick="modalDismiss()">{{ $year_value }}</button></a>
                @endfor
           </div>
           <div class="modal-footer">
@@ -91,6 +91,9 @@
 @section('extrascript')
 
 <script>
+   function modalDismiss(){
+      $('#export').modal('hide');
+   }
 
    $(document).ready(function(){      
       $('#yearValue').change(function(){
