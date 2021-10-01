@@ -11,6 +11,7 @@ use DB;
 class BrandController extends Controller
 {
     public function __construct(){
+        $help = new HelperController;
         $this->middleware(function ($request, $next) {
             if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
                 Auth::logout();

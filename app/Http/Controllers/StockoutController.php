@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
- 
+
+use App\Http\Controllers\HelperController;
 use App\Model\Product;
 use App\Model\Stock;
 use App\Model\Stockout;
@@ -13,6 +14,7 @@ use DB;
 class StockoutController extends Controller
 {
     public function __construct(){
+        $help = new HelperController;
         $this->middleware(function ($request, $next) {
             if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
                 Auth::logout();

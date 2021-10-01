@@ -11,6 +11,10 @@ use Auth;
  
 class RegisterController extends Controller
 {
+    public function __construct(){
+        $help = new HelperController;
+    }
+
     public function userStore(Request $request){
         $this->validate($request, [
             'mobileNumber' => 'required|digits:11',
