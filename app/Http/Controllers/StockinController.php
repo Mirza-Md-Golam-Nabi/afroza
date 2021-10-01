@@ -86,13 +86,16 @@ class StockinController extends Controller
         $title = "Stock-in History";
         $dataList = DB::table('stockin_history as a')
                 ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                ->select('a.product_id', 'a.date', DB::raw('SUM(a.quantity) as quantity'), 'b.product_name')
+                ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), 'b.product_name')
                 ->where('a.date', $date)
                 ->groupBy('a.date', 'a.product_id')
                 ->orderBy('a.date', 'desc')
                 ->get();
+
+        $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        $lastUpdate = $inLast->updated_at;
                 
-        return view('admin.stock.stockin.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date]);
+        return view('admin.stock.stockin.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date, 'lastUpdate'=>$lastUpdate]);
     }
 
     public function stockinEdit($date, $product_id){

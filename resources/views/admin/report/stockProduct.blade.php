@@ -2,8 +2,11 @@
 @section('maincontent')
 
 <div class="d-flex justify-content-between">
-   <p>Product: <span style="font-weight: bold;">{{ $product->product_name }}</span></p>
-   <p>Stock: <span style="font-weight:bold;">{{ $product->quantity." ".$product->unit }}</span></p>
+   <p style="margin: 0;">Product: <span style="font-weight: bold;">{{ $product->product_name }}</span></p>
+   <p style="margin: 0;">Stock: <span style="font-weight:bold;">{{ $product->quantity." ".$product->unit }}</span></p>
+</div>
+<div style="margin-bottom: 1rem">
+   <small>Last Update: {{ $lastUpdate }}</small>
 </div>
 <div class="clearfix">
    <table class="table table-bordered table-striped table-sm">

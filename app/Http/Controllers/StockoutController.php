@@ -85,13 +85,16 @@ class StockoutController extends Controller
         $title = "Stock-out History";
         $dataList = DB::table('stockout_history as a')
                 ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                ->select('a.product_id', 'a.date', DB::raw('SUM(a.quantity) as quantity'), 'b.product_name')
+                ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), 'b.product_name')
                 ->where('a.date', $date)
                 ->groupBy('a.date', 'a.product_id')
                 ->orderBy('a.date', 'desc')
                 ->get();
 
-        return view('admin.stock.stockout.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date]);
+        $outLast = DB::table('stockout_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        $lastUpdate = $outLast->updated_at;
+
+        return view('admin.stock.stockout.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date, 'lastUpdate'=>$lastUpdate]);
     }
 
     public function stockoutEdit($date, $product_id){

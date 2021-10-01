@@ -91,6 +91,19 @@ class ReportController extends Controller
                     ->groupBy('a.product_id')
                     ->get();
 
+        $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        $outLast = DB::table('stockout_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        
+        if($inLast && $outLast){
+            $lastUpdate = $inLast->updated_at > $outLast->updated_at ? $inLast->updated_at : $outLast->updated_at;
+        }elseif($inLast){
+            $lastUpdate = $inLast->updated_at;
+        }elseif($outLast){
+            $lastUpdate = $outLast->updated_at;
+        }else{
+            $lastUpdate = NULL;
+        }
+
         $stockSummary = [];
         foreach($stockinData as $key => $value){
             $newArray = [];
@@ -116,7 +129,7 @@ class ReportController extends Controller
             } 
         }
 
-        return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary]);
+        return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate]);
     }
 
     public function weeklyReport(){
