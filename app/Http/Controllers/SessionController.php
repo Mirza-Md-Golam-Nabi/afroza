@@ -133,6 +133,10 @@ class SessionController extends Controller
             } 
         }
 
+        usort($stockSummary, function ($object1, $object2) { 
+            return $object1['product_name'] > $object2['product_name']; 
+        });
+
         return $stockSummary;
     }
 
