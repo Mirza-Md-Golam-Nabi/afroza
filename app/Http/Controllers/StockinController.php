@@ -89,7 +89,7 @@ class StockinController extends Controller
                 ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), 'b.product_name')
                 ->where('a.date', $date)
                 ->groupBy('a.date', 'a.product_id')
-                ->orderBy('a.date', 'desc')
+                ->orderBy('b.product_name', 'asc')
                 ->get();
 
         $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();

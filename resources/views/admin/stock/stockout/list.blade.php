@@ -35,7 +35,7 @@
 <script type="text/javascript">
    $(document).ready(function(){
        $('#table_id').DataTable({
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "lengthMenu": [[-1], ["All"]]
     });
    });
