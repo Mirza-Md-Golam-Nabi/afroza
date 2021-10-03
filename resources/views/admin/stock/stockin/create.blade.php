@@ -29,6 +29,7 @@
             </div>
             <div class="d-flex justify-content-around mb-1">
                <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity">
+               <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price">
                <span class="btn ml-1">&nbsp;&nbsp;&nbsp;</span>             
             </div>
          </div>
@@ -59,6 +60,7 @@
                   </div>
                   <div class="d-flex justify-content-around mb-1">
                      <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity">
+                     <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price">
                      <span class="btn ml-1 btn-danger btn_remove_product" id="${i}">X</span>             
                   </div>
                </div>`;

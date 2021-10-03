@@ -13,7 +13,7 @@
       <input type="hidden" name="oldDate" value="{{ $date }}">
       <div class="form-group">
          <label for="invoice">Invoice ID <small class="text-muted">(optional)</small></label>
-         <input type="text" name="invoice" class="form-control" id="invoice" autocomplete="off" value="{{ $invoice_id == "N/A" ? "" : $invoice_id }}">
+         <input type="text" name="invoice" class="form-control" id="invoice" autocomplete="off" value="">
       </div>
       <div class="form-group">
          <label for="date">Date <small class="text-muted">(required)</small></label>
@@ -40,6 +40,7 @@
                </div>
                <div class="d-flex justify-content-around mb-4">
                   <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity" value="{{ $stockin->quantity }}">
+                  <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price" value="{{ $stockin->buying_price }}">
                   <span class="btn ml-1 btn-danger btn_remove_product" id="{{ $i++ }}">X</span>
                </div>
             </div>

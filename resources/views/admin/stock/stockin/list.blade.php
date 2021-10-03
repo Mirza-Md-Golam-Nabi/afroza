@@ -11,8 +11,9 @@
       <thead>
       <tr>
           <th scope="col">Product Name</th>
-          <th style="text-align:center;" scope="col">Quantity</th>
-          <th style="text-align:center;" scope="col">Action</th>
+          <th style="text-align: center;" scope="col">Quantity</th>
+          <th style="text-align: right;" scope="col">Price</th>
+          <th style="text-align: center;" scope="col">Action</th>
       </tr>
       </thead>
       <tbody>
@@ -21,7 +22,8 @@
          @php $i++; @endphp
          <tr>
             <td style="cursor: pointer;">{{ $list->product_name }}</td>
-            <td style="text-align:center;">{{ $list->quantity }}</td>
+            <td style="text-align: center;">{{ $list->quantity }}</td>
+            <td style="text-align: right;">{{ $list->price }}</td>
             <td style="text-align: center;"><a href="{{ route('admin.stockin.edit', [$date, $list->product_id]) }}" class="text-primary">Edit</a></td>
          </tr>
 
