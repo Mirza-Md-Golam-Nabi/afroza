@@ -37,4 +37,10 @@ class GeneralController extends Controller
             return '<small class="text-success">You can store this Product</small>';
         }
     }
+
+    public function stockCheck(Request $request){
+        $product_id = $request->get('productID');
+        $data = DB::table('stock')->select('quantity','current_price')->where('product_id', $product_id)->first();
+        return ['quantity'=>$data->quantity, 'price'=>$data->current_price];
+    }
 }

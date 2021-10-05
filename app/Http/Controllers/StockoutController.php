@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Http\Controllers\HelperController;
+
 use App\Model\Product;
+use App\Model\ProductPrice;
 use App\Model\Stock;
 use App\Model\Stockout;
 use Auth;
@@ -40,6 +41,7 @@ class StockoutController extends Controller
         $date       = $request->date;
         $product_id = $request->product_id;
         $quantity   = $request->quantity;
+        $price      = $request->price;
 
         if(empty($invoice)){
             $invoice = "N/A";
@@ -49,30 +51,22 @@ class StockoutController extends Controller
         for($i = 0; $i < count($product_id); $i++){
             $newArray = [];
             $newArray['product_id'] = $product_id[$i];
-            $newArray['quantity'] = $quantity[$i];
+            $newArray['quantity']   = $quantity[$i];
+            $newArray['price']      = $price[$i];
             array_push($stockData, $newArray);
         }
 
         try{
             DB::beginTransaction();
 
-            foreach($stockData as $stock){
-                $stockin = new Stockout;
-                $stockin->date          = $date;
-                $stockin->product_id    = $stock['product_id'];
-                $stockin->quantity      = $stock['quantity'];
-                $stockin->updated_by    = Auth::user()->id;
-                $stockin->save();
-
-                $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity - '.$stock["quantity"])]);
-            }
+            $stockout = $this->stockCalculate($allProduct, $date);
 
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
         }
 
-        if($data){
+        if($stockout){
             session()->flash('success','Stock out Successfully.');
             return redirect()->route('admin.stockout.create');
         }else{
@@ -85,7 +79,7 @@ class StockoutController extends Controller
         $title = "Stock-out History";
         $dataList = DB::table('stockout_history as a')
                 ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), 'b.product_name')
+                ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), DB::raw('SUM(a.buying_price) as buy'), DB::raw('SUM(a.selling_price) as sell'), 'b.product_name')
                 ->where('a.date', $date)
                 ->groupBy('a.date', 'a.product_id')
                 ->orderBy('b.product_name', 'asc')
@@ -117,13 +111,15 @@ class StockoutController extends Controller
         $date          = $request->date;
         $product_id    = $request->product_id;
         $quantity      = $request->quantity;
+        $price         = $request->price;
 
         $newArray = [];
         $allProduct = [];
         if(isset($product_id) && count($product_id) > 0){
             for($i = 0; $i < count($product_id); $i++){
-                $newArray['productId'] = $product_id[$i];
-                $newArray['quantity'] = $quantity[$i];
+                $newArray['product_id'] = $product_id[$i];
+                $newArray['quantity']   = $quantity[$i];
+                $newArray['price']      = $price[$i];
                 array_push($allProduct, $newArray);
             }
         }else{
@@ -136,24 +132,39 @@ class StockoutController extends Controller
         foreach($stockOut as $stock){
             $oldTotal += $stock->quantity;
         }
+        $product_price = DB::table('product_price')->where('product_id', $oldProduct_id)->where('status', 1)->first();
+        $stock = Stock::where('product_id', $oldProduct_id)->first();
         
         try{
             DB::beginTransaction();
 
+            $avail_stock = $product_price->quantity;
+            $avail_price = $product_price->price / $product_price->quantity;
+
+            if($oldTotal > ($product_price->quantity - $stock->applicable_stock)){
+                DB::table('product_price')->where('product_id', $oldProduct_id)->where('status', 1)->update(['status'=>0]);
+                $remain = $oldTotal - ($product_price->quantity - $stock->applicable_stock);
+                while($remain != 0){
+                    $checker = ProductPrice::where('product_id', $oldProduct_id)->where('status', 2)->orderBy('id','desc')->first();
+                    if($remain > $checker->quantity){
+                        $remain -= $checker->quantity;
+                        $checker->status = 0;
+                        $checker->save();
+                    }else{
+                        $avail_stock = ($checker->quantity - $remain) == 0 ? $checker->quantity : ($checker->quantity - $remain);
+                        $avail_price = $checker->price / $checker->quantity;
+                        $remain = 0;
+                        $checker->status = 1;
+                        $checker->save();
+                    }
+                }
+            }
+
             Stockout::where('date', $oldDate)->where('product_id', $oldProduct_id)->delete();
 
-            $stock = Stock::where('product_id', $oldProduct_id)->update(['quantity' => DB::raw('quantity + '.$oldTotal)]);
+            $stock = Stock::where('product_id', $oldProduct_id)->update(['quantity' => DB::raw('quantity + '.$oldTotal), 'current_price'=>$avail_price, 'applicable_stock'=>$avail_stock]);
 
-            foreach($allProduct as $product){
-                $stock = Stock::where('product_id', $product['productId'])->update(['quantity' => DB::raw('quantity - '.$product['quantity']), 'updated_by'=>Auth::user()->id]);
-
-                $stockout = new Stockout;
-                $stockout->date          = $date;
-                $stockout->product_id    = $product['productId'];
-                $stockout->quantity      = $product['quantity'];
-                $stockout->updated_by    = Auth::user()->id;
-                $stockout->save();
-            }
+            $stockout = $this->stockCalculate($allProduct, $date);
 
             DB::commit();
         }catch(Exception $e){
@@ -175,5 +186,91 @@ class StockoutController extends Controller
         $data = SessionController::stockDate('stockout_history');
 
         return view('admin.stock.stockDate')->with(['title'=>$title, 'url'=>$url, 'data'=>$data]);
+    }
+
+    public function stockCalculate($allProduct, $date){
+        foreach($allProduct as $stock){
+            $stockCurrent = Stock::select('product_name','quantity','current_price', 'applicable_stock')->where('product_id', $stock['product_id'])->first();
+            if($stockCurrent->quantity < $stock['quantity']){
+                session()->flash('error', $stockCurrent->product_name.' too much input. Available Stock = '.$stockCurrent->quantity);
+                return redirect()->back()->withInput();
+            }elseif($stockCurrent->current_price == 0){
+                session()->flash('error', $stockCurrent->product_name.' buying price is not available');
+                return redirect()->back()->withInput();
+            }
+            $buyingPrice = 0;
+            $avail_stock = $stockCurrent->applicable_stock - $stock['quantity'];
+            $avail_price = $stockCurrent->current_price;
+
+            if($stockCurrent->applicable_stock >= $stock['quantity']){
+                $buyingPrice = $stock['quantity'] * $stockCurrent->current_price;
+                $stock_quantity = $stockCurrent->quantity - $stock['quantity'];
+                
+                if($stockCurrent->applicable_stock == $stock['quantity']){
+                    DB::table('product_price')->where('product_id', $stock['product_id'])->where('status', 1)->update(['status'=>2]);
+                    $priceRate = ProductPrice::where('product_id', $stock['product_id'])->where('status', 0)->first();
+
+                    $avail_stock = 0;
+                    $avail_price = 0;
+
+                    if($priceRate){
+                        $avail_stock = $priceRate->quantity;
+                        $avail_price = $priceRate->price / $priceRate->quantity;
+
+                        $priceRate->status = 1;
+                        $priceRate->save();
+                    }
+                }
+                
+                $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>$stock_quantity, 'current_price'=>$avail_price, 'applicable_stock'=>$avail_stock, 'updated_by'=>Auth::user()->id]);
+            }else{
+                DB::table('product_price')->where('product_id', $stock['product_id'])->where('status',1)->update(['status'=>2]);
+                $stkQuantity = $stock['quantity'] - $stockCurrent->applicable_stock;
+                $remain_stock = 0;
+                $buyingPrice = $stockCurrent->applicable_stock * $stockCurrent->current_price;
+                $i = 0;
+                while($stkQuantity != 0 && $i < 5){
+                    $i++;
+                    $fetch = ProductPrice::where('product_id', $stock['product_id'])->where('status', 0)->first();
+                    
+                    if($stkQuantity > $fetch->quantity){
+                        $buyingPrice += $fetch->price;
+                        $stkQuantity -= $fetch->quantity;
+                        $fetch->status = 2;
+                        $fetch->save();
+                    }elseif($stkQuantity == $fetch->quantity){
+                        $buyingPrice += $fetch->price;
+                        $stkQuantity -= $fetch->quantity;
+                        $fetch->status = 2;
+                        $fetch->save();
+                        $fetch = ProductPrice::where('product_id', $stock['product_id'])->where('status', 0)->first();
+                        $fetch->status = 1;
+                        $fetch->save();
+                        $stkQuantity = 0;
+                        $remain_stock = $fetch->quantity;
+                    }else{
+                        $remain_stock = $fetch->quantity - $stkQuantity;
+                        $perProductPrice = $fetch->price / $fetch->quantity;
+                        $buyingPrice += ($perProductPrice * $stkQuantity);
+                        $stkQuantity = 0;
+                        $fetch->status = 1;
+                        $fetch->save();
+                    }
+                }
+
+                $data = DB::table('stock')->where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity - '.$stock["quantity"]), 'applicable_stock'=>$remain_stock, 'current_price'=>($fetch->price / $fetch->quantity), 'updated_by'=>Auth::user()->id]);
+
+            }
+
+            $stockout = new Stockout;
+            $stockout->date          = $date;
+            $stockout->product_id    = $stock['product_id'];
+            $stockout->quantity      = $stock['quantity'];
+            $stockout->buying_price  = $buyingPrice;
+            $stockout->selling_price = $stock['price'];
+            $stockout->updated_by    = Auth::user()->id;
+            $stockout->save();
+        }
+        return 1;
     }
 }

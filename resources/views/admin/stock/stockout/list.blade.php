@@ -12,6 +12,7 @@
       <tr>
           <th scope="col">Product Name</th>
           <th style="text-align:center;" scope="col">Quantity</th>
+          <th style="text-align:center;" scope="col">Details</th>
           <th style="text-align:center;" scope="col">Action</th>
       </tr>
       </thead>
@@ -20,6 +21,11 @@
          <tr>
             <td>{{ $list->product_name }}</td>
             <td style="text-align:center;">{{ $list->quantity }}</td>
+            <td style="text-align:left;">
+               {{ "S=".$list->sell }}<br>
+               {{ "B=".$list->buy }}<br>
+               {{ "P=".($list->sell - $list->buy) }}
+            </td>
             <td style="text-align: center;"><a href="{{ route('admin.stockout.edit', [$date, $list->product_id]) }}" class="text-primary">Edit</a></td>
          </tr>
 

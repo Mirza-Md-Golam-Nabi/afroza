@@ -8,6 +8,7 @@ Route::get('test', 'TestController@test')->name('test');
 Route::get('/brand/fetch','GeneralController@brandFetch')->name('general.brand.fetch');
 Route::get('/category/fetch','GeneralController@categoryFetch')->name('general.category.fetch');
 Route::get('/product/check','GeneralController@productCheck')->name('general.product.check');
+Route::get('/stock/check', 'GeneralController@stockCheck')->name('general.stock.check');
 
 // Admin Controller
 

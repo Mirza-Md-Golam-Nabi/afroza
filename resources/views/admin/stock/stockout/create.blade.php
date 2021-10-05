@@ -24,10 +24,12 @@
                <span class="btn ml-1">&nbsp;&nbsp;&nbsp;</span> 
             </div>
             <div class="d-flex justify-content-around mb-1">
-               <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity">
+               <input type="number" name="quantity[]" data-quantity="1" required class="form-control mr-1 quantity" placeholder="Quantity">
+               <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price">
                <span class="btn ml-1">&nbsp;&nbsp;&nbsp;</span>          
             </div>
-         </div>
+            <div><small id="msg1" style="color:#f00;"></small></div>
+         </div>         
          <span class="btn btn-success btn-sm mt-2" id="addmore">Add More</span>
      </div>
       <input type="submit" class="btn btn-primary" value="Submit">    
@@ -54,9 +56,11 @@
                      <span class="btn ml-1">&nbsp;&nbsp;&nbsp;</span> 
                   </div>
                   <div class="d-flex justify-content-around mb-1">
-                     <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity">
+                     <input type="number" name="quantity[]" required data-quantity="${i}" class="form-control mr-1 quantity" placeholder="Quantity">
+                     <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price">
                      <span class="btn ml-1 btn-danger btn_remove_product" id="${i}">X</span>             
                   </div>
+                  <div><small id="msg${i}" style="color:#f00;"></small></div>
                </div>`;
          $('#product').append(data); 
       });
@@ -66,6 +70,52 @@
         var button_id = $(this).attr("id");
         $('#div'+button_id).remove();
     });
+
+    $(document).on('keyup', '.quantity', function(){
+        var dataQuantityId = $(this).data("quantity");
+        var dataQuantityValue = parseInt($(this).val());
+        var prodId = document.querySelector("[data-product='"+dataQuantityId+"']").value;
+        if(dataQuantityValue){
+            $.ajax({ 
+                url: "{{ route('general.stock.check') }}?productID=" + prodId,
+                method: 'GET',
+                success: function(data) {
+                   if(dataQuantityValue > data.quantity){
+                     $('#msg'+dataQuantityId).html("Available Quantity = " + data.quantity);
+                   }else if(data.price == 0){
+                     $('#msg'+dataQuantityId).html("Buying price is not set");
+                   }else{
+                     $('#msg'+dataQuantityId).html("");
+                   }
+                  }
+            });
+        }else{
+         $('#msg'+dataQuantityId).html("");
+        }
+    });
+
+   $(document).on('change', '.target_product', function(){
+      var dataProductId = $(this).data("product");
+      var dataProductValue = parseInt($(this).val());
+      var dataQuantityValue = document.querySelector("[data-quantity='"+dataProductId+"']").value;
+      if(dataProductValue){
+         $.ajax({ 
+            url: "{{ route('general.stock.check') }}?productID=" + dataProductValue,
+            method: 'GET',
+            success: function(data) {
+               if(dataQuantityValue > data.quantity){
+                  $('#msg'+dataProductId).html("Available Quantity = " + data.quantity);
+               }else if(data.price == 0){
+                  $('#msg'+dataProductId).html("Buying price is not set");
+               }else{
+                  $('#msg'+dataProductId).html("");
+               }
+            }
+         });
+      }else{
+         $('#msg'+dataProductId).html("");
+      }
+   });
 
 </script>
 
