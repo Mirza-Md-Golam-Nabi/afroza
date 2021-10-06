@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Model\ProductPrice;
 use App\Model\Stock;
 use App\Model\Stockin;
 use App\Model\Stockout;
@@ -102,5 +103,65 @@ class StockController extends Controller
 
         return view('admin.report.stockProduct')->with(['title'=>$title, 'product'=>$product, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate]);
 
+    }
+
+    public function add(){
+        $title = "Stock Price Add";
+        $productList = DB::table('products as a')
+                    ->leftJoin('stock as b', 'b.product_id', '=', 'a.id')
+                    ->select('a.id', 'a.product_name')
+                    ->where('a.status', 1)
+                    ->where('b.applicable_stock', 0)
+                    ->orderBy('product_name', 'asc')
+                    ->get();
+        return view('admin.stock.priceadd')->with(['title'=>$title, 'productList'=>$productList]);
+    }
+
+    public function store(Request $request){
+        $product_id = $request->product_id;
+        $quantity   = $request->quantity;
+        $price      = $request->price;
+
+        $allData = [];
+        $newArray = [];
+        for($i = 0; $i < count($product_id); $i++){
+            $newArray['product_id'] = $product_id[$i];
+            $newArray['quantity']   = $quantity[$i];
+            $newArray['price']      = $price[$i];
+
+            array_push($allData, $newArray);
+        }
+
+        try{
+            DB::beginTransaction();
+
+            foreach($allData as $data){
+                $productPrice = ProductPrice::where('product_id', $data['product_id'])->where('status', 1)->first();
+                if($productPrice){
+                    $store = new ProductPrice;
+                    $store->product_id  = $data['product_id'];
+                    $store->quantity    = $data['quantity'];
+                    $store->price       = $data['price'];
+                    $store->status      = 0;
+                    $store->save();
+                }else{
+                    $store = new ProductPrice;
+                    $store->product_id  = $data['product_id'];
+                    $store->quantity    = $data['quantity'];
+                    $store->price       = $data['price'];
+                    $store->status      = 1;
+                    $store->save();
+
+                    DB::table('stock')->where('product_id', $data['product_id'])->update(['current_price'=>($data['price'] / $data['quantity']), 'applicable_stock'=>$data['quantity']]);
+                }
+            }
+
+            DB::commit();
+        }catch(Exception $e){
+            DB::rollback();
+        }
+
+        session()->flash('success', 'Price Added Successfully.');
+        return redirect()->back();
     }
 }

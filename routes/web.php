@@ -70,6 +70,8 @@ Route::group(['prefix'=>'admin'], function(){
     Route::group(['prefix'=>'stock'], function(){
         Route::get('/current', 'StockController@stockCurrent')->name('admin.stock.current');        
         Route::get('/history-{id}', 'StockController@stockHistory')->name('admin.stock.history');
+        Route::get('/add', 'StockController@add')->name('admin.stock.add');
+        Route::post('/store', 'StockController@store')->name('admin.stock.store');
     });
 
     Route::group(['prefix'=>'report'], function(){

@@ -14,6 +14,7 @@
             <li><a href="{{ route('admin.brand.list') }}">Brand</a></li>
             <li><a href="{{ route('admin.category.list') }}">Category</a></li>
             <li><a href="{{ route('admin.product.list') }}">Product</a></li>
+            <li><a href="{{ route('admin.stock.add') }}">Price Add</a></li>
          </ul>
       </li> 
       <li>
