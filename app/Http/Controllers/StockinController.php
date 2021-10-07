@@ -84,8 +84,8 @@ class StockinController extends Controller
                 $productPrice = new ProductPrice;
                 $productPrice->date         = $date;
                 $productPrice->product_id   = $stock['product_id'];
-                $productPrice->quantity     = $stock['quantity'] * $stock['price'];
-                $productPrice->price        = $stock['price'];
+                $productPrice->quantity     = $stock['quantity'];
+                $productPrice->price        = $stock['quantity'] * $stock['price'];
                 $productPrice->status       = $productPriceStatus;
                 $productPrice->save();
             }
@@ -189,8 +189,8 @@ class StockinController extends Controller
                 $productPrice = new ProductPrice;
                 $productPrice->date         = $date;
                 $productPrice->product_id   = $product['productId'];
-                $productPrice->quantity     = $product['quantity'] * $product['price'];
-                $productPrice->price        = $product['price'];
+                $productPrice->quantity     = $product['quantity'];
+                $productPrice->price        = $product['quantity'] * $product['price'];
                 $productPrice->status       = $productPriceStatus;
                 $productPrice->save();
 
