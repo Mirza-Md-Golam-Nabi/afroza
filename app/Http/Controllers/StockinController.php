@@ -78,13 +78,13 @@ class StockinController extends Controller
 
                     $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity + '.$stock["quantity"]), 'updated_by'=>Auth::user()->id]);
                 }else{
-                    $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity + '.$stock["quantity"]), 'current_price'=>($stock['price'] / $stock['quantity']), 'applicable_stock'=>$stock['quantity'], 'updated_by'=>Auth::user()->id]);
+                    $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity + '.$stock["quantity"]), 'current_price'=>$stock['price'], 'applicable_stock'=>$stock['quantity'], 'updated_by'=>Auth::user()->id]);
                 }
 
                 $productPrice = new ProductPrice;
                 $productPrice->date         = $date;
                 $productPrice->product_id   = $stock['product_id'];
-                $productPrice->quantity     = $stock['quantity'];
+                $productPrice->quantity     = $stock['quantity'] * $stock['price'];
                 $productPrice->price        = $stock['price'];
                 $productPrice->status       = $productPriceStatus;
                 $productPrice->save();
@@ -183,13 +183,13 @@ class StockinController extends Controller
 
                     Stock::where('product_id', $product['productId'])->update(['quantity' => DB::raw('quantity + '.$product['quantity']), 'updated_by'=>Auth::user()->id]);
                 }else{
-                    Stock::where('product_id', $product['productId'])->update(['quantity' => DB::raw('quantity + '.$product['quantity']), 'current_price'=>($product['price'] / $product['quantity']), 'applicable_stock'=>$product['quantity'], 'updated_by'=>Auth::user()->id]);
+                    Stock::where('product_id', $product['productId'])->update(['quantity' => DB::raw('quantity + '.$product['quantity']), 'current_price'=>$product['price'], 'applicable_stock'=>$product['quantity'], 'updated_by'=>Auth::user()->id]);
                 }
 
                 $productPrice = new ProductPrice;
                 $productPrice->date         = $date;
                 $productPrice->product_id   = $product['productId'];
-                $productPrice->quantity     = $product['quantity'];
+                $productPrice->quantity     = $product['quantity'] * $product['price'];
                 $productPrice->price        = $product['price'];
                 $productPrice->status       = $productPriceStatus;
                 $productPrice->save();

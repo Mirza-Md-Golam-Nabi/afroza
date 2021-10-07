@@ -138,19 +138,19 @@ class StockController extends Controller
                 if($productPrice){
                     $store = new ProductPrice;
                     $store->product_id  = $data['product_id'];
-                    $store->quantity    = $data['quantity'];
+                    $store->quantity    = $data['quantity'] * $data['price'];
                     $store->price       = $data['price'];
                     $store->status      = 0;
                     $store->save();
                 }else{
                     $store = new ProductPrice;
                     $store->product_id  = $data['product_id'];
-                    $store->quantity    = $data['quantity'];
+                    $store->quantity    = $data['quantity'] * $data['price'];
                     $store->price       = $data['price'];
                     $store->status      = 1;
                     $store->save();
 
-                    DB::table('stock')->where('product_id', $data['product_id'])->update(['current_price'=>($data['price'] / $data['quantity']), 'applicable_stock'=>$data['quantity']]);
+                    DB::table('stock')->where('product_id', $data['product_id'])->update(['current_price'=>$data['price'], 'applicable_stock'=>$data['quantity']]);
                 }
             }
 
