@@ -86,7 +86,7 @@ class ReportController extends Controller
 
         $stockoutData = DB::table('stockout_history as a')
                     ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                    ->select('a.product_id', DB::raw('SUM(a.quantity) AS stockout'), 'b.product_name')
+                    ->select('a.product_id', DB::raw('SUM(a.quantity) AS stockout'), DB::raw('SUM(a.buying_price) AS buy'), DB::raw('SUM(a.selling_price) AS sell'), 'b.product_name')
                     ->where('a.date', $date)
                     ->groupBy('a.product_id')
                     ->get();
@@ -111,6 +111,7 @@ class ReportController extends Controller
             $newArray['product_name']   = $value->product_name;
             $newArray['stockin']        = $value->stockin;
             $newArray['stockout']       = 0;
+            $newArray['profit']         = 0;
             array_push($stockSummary, $newArray);
         }
 
@@ -119,12 +120,14 @@ class ReportController extends Controller
                 $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
                 $newarray = array_keys($resultArr);
                 $stockSummary[$newarray[0]]['stockout'] = $value->stockout;
+                $stockSummary[$newarray[0]]['profit']   = $value->sell - $value->buy;
             }else{
                 $newArray = [];
                 $newArray['product_id']     = $value->product_id;
                 $newArray['product_name']   = $value->product_name;
                 $newArray['stockin']        = 0; 
                 $newArray['stockout']       = $value->stockout;
+                $newArray['profit']         = $value->sell - $value->buy;
                 array_push($stockSummary, $newArray);
             } 
         }
