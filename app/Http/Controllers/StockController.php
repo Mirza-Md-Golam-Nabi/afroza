@@ -52,14 +52,12 @@ class StockController extends Controller
                     ->where('product_id', $product_id)
                     ->orderBy('date','desc')
                     ->groupBy('date')
-                    ->skip(0)->take(10)
                     ->get();
 
         $stockoutData = Stockout::select('date', DB::raw('SUM(quantity) AS stockout'))
                     ->where('product_id', $product_id)
                     ->orderBy('date','desc')
                     ->groupBy('date')
-                    ->skip(0)->take(50)
                     ->get();
 
         $inLast  = DB::table('stockin_history')->select('updated_at')->where('product_id', $product_id)->orderBy('id','desc')->first();

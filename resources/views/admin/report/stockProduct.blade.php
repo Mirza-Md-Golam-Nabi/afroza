@@ -6,7 +6,7 @@
    <p style="margin: 0;">Stock: <span style="font-weight:bold;">{{ $product->quantity." ".$product->unit }}</span></p>
 </div>
 <div style="margin-bottom: 1rem">
-   <small>Last Update: {{ $lastUpdate }}</small>
+   <small>Last Update: {{ date("d-m-Y H:i:s", strtotime($lastUpdate)) }}</small>
 </div>
 <div class="clearfix">
    <table class="table table-bordered table-striped table-sm">
@@ -23,8 +23,8 @@
         @php $i=1; $sum=$product->quantity; @endphp
         @foreach($stockSummary AS $stock)
          <tr>
-            <td style="text-align: center;">{{ $stock['date'] }}</td>
-            <td style="text-align: center;">{{ $stock['stockin'] }}</td>
+            <td style="text-align: center;">{{ date("d-m-Y", strtotime($stock['date'])) }}</td>
+            <td style="text-align: center;@if($stock['stockin'] > 0) color:#f00; font-weight:bold; @endif">{{ $stock['stockin'] }}</td>
             <td style="text-align: center;">{{ $sum + $stock['stockout'] }}</td>
             <td style="text-align: center;">{{ $stock['stockout'] }}</td>
             <td style="text-align: center;">{{ $sum }}</td>
