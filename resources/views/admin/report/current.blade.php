@@ -17,7 +17,7 @@
          <tr>
             <th scope="row">{{ $i++ }}</th>
             <td><a href="{{ route('admin.stock.history', $list->product_id) }}" class="text-primary">{{ $list->product_name }}</a></td>
-            <td style="text-align: center;">{{ $list->quantity." বস্তা" }}</td>
+            <td style="text-align: center;">{{ $list->quantity }}</td>
          </tr>
         @endforeach
       </tbody>

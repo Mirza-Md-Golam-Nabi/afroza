@@ -110,7 +110,8 @@ class StockController extends Controller
                     ->select('a.id', 'a.product_name')
                     ->where('a.status', 1)
                     ->where('b.applicable_stock', 0)
-                    ->orderBy('product_name', 'asc')
+                    ->where('b.quantity', '>', 0)
+                    ->orderBy('a.product_name', 'asc')
                     ->get();
         return view('admin.stock.priceadd')->with(['title'=>$title, 'productList'=>$productList]);
     }
