@@ -24,7 +24,21 @@ class AdminController extends Controller
 
     public function index(){
         $title = "Admin Dashboard";
-        return view('admin.index')->with(['title'=>$title]);
+        $currentMonth = date("m");
+        $profit = [];
+        for($i = 0; $i < 2; $i++){
+            $month = $currentMonth - $i;
+            $year = ($currentMonth >= $month) ? date('Y') : date('Y') - 1;
+
+            $data = DB::table('stockout_history as a')
+                ->select(DB::raw('SUM(a.buying_price) AS buy'), DB::raw('SUM(a.selling_price) AS sell'))
+                ->where(DB::raw('MONTH(a.date)'), $month)
+                ->where(DB::raw('YEAR(a.date)'), $year)
+                ->first();
+
+            $profit['profit'.$i] = $data->sell - $data->buy;
+        }
+        return view('admin.index')->with(['title'=>$title, 'profit'=>$profit]);
     }
     
 }

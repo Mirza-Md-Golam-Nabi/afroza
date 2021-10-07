@@ -4,6 +4,22 @@
 
 <!-- Main Content -->
 
+<style>
+   .contain{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 5px;
+   }
+</style>
+
+<div>
+   <h4 style="text-align: center;" class="p-2 bg-success text-white">Profit</h4>
+   <div class="contain">
+      <div style="text-align: center;">This Month<br>{{ number_format($profit['profit0'], 1) }}</div>
+      <div style="text-align: center;">Prev Month<br>{{ number_format($profit['profit1'], 1) }}</div>
+   </div>
+</div>
+<hr>
 <div class="d-flex align-items-stretch flex-wrap">
    
    <?php 
