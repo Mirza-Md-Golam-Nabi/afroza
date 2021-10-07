@@ -4,7 +4,7 @@
 
 <!-- Main Content -->
 
-<div class="d-flex justify-content-between flex-wrap">
+<div class="d-flex align-items-stretch flex-wrap">
    
    <?php 
       $divHead = "Daily Report";
