@@ -18,10 +18,10 @@
         @foreach($stockSummary AS $stock)
          <tr>
             <td><a href="{{ route('admin.stock.history', $stock['product_id']) }}" class="text-primary">{{ $stock['product_name'] }}</a></td>
-            <td style="text-align: center;">{{ $stock['current'] }}</td>
-            <td style="text-align: center;">{{ $stock['prev1'] }}</td>
-            <td style="text-align: center;">{{ $stock['prev2'] }}</td>
-            <td style="text-align: center;">{{ $stock['prev3'] }}</td>
+            <td style="text-align: center;">{{ $stock['current'] }} <br>{{ "P=".$stock['profit0'] }}</td>
+            <td style="text-align: center;">{{ $stock['prev1'] }} <br>{{ "P=".$stock['profit1'] }}</td>
+            <td style="text-align: center;">{{ $stock['prev2'] }} <br>{{ "P=".$stock['profit2'] }}</td>
+            <td style="text-align: center;">{{ $stock['prev3'] }} <br>{{ "P=".$stock['profit3'] }}</td>
          </tr>
         @endforeach
       </tbody>
