@@ -37,7 +37,7 @@ class StockController extends Controller
     public function stockCurrent(){
         $title = "Current Stock";
         $stockList = DB::table('stock')
-                   ->select('product_id','product_name', 'quantity')
+                   ->select('product_id','product_name', 'quantity', 'current_price')
                    ->where('status', 1)
                    ->orderBy('product_name', 'asc')
                    ->get();
@@ -54,7 +54,7 @@ class StockController extends Controller
                     ->groupBy('date')
                     ->get();
 
-        $stockoutData = Stockout::select('date', DB::raw('SUM(quantity) AS stockout'))
+        $stockoutData = Stockout::select('date', DB::raw('SUM(quantity) AS stockout'), DB::raw('SUM(buying_price) AS buy'),           DB::raw('SUM(selling_price) AS sell'))
                     ->where('product_id', $product_id)
                     ->orderBy('date','desc')
                     ->groupBy('date')
@@ -76,9 +76,10 @@ class StockController extends Controller
         $stockSummary = [];
         foreach($stockinData as $key => $value){
             $newArray = [];
-            $newArray['date']           = $value->date;
-            $newArray['stockin']        = $value->stockin;
-            $newArray['stockout']       = 0;
+            $newArray['date']      = $value->date;
+            $newArray['stockin']   = $value->stockin;
+            $newArray['stockout']  = 0;
+            $newArray['profit']    = 0;
             array_push($stockSummary, $newArray);
         }
 
@@ -87,10 +88,12 @@ class StockController extends Controller
                 $resultArr = $this->filterByDow($stockSummary,$value->date);
                 $newarray = array_keys($resultArr);
                 $stockSummary[$newarray[0]]['stockout'] = $value->stockout;
+                $stockSummary[$newarray[0]]['profit']   = $value->sell - $value->buy;
             }else{
-                $newArray['date']           = $value->date;
-                $newArray['stockin']        = 0;
-                $newArray['stockout']       = $value->stockout;
+                $newArray['date']     = $value->date;
+                $newArray['stockin']  = 0;
+                $newArray['stockout'] = $value->stockout;
+                $newArray['profit']   = $value->sell - $value->buy;
                 array_push($stockSummary, $newArray);
             } 
         }

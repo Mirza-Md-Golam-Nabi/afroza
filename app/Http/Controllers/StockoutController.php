@@ -59,7 +59,7 @@ class StockoutController extends Controller
         try{
             DB::beginTransaction();
 
-            $stockout = $this->stockCalculate($allProduct, $date);
+            $stockout = $this->stockCalculate($stockData, $date);
 
             DB::commit();
         }catch(Exception $e){

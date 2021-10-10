@@ -9,6 +9,7 @@
           <th scope="col">S.N</th>
           <th scope="col">Product Name</th>
           <th style="text-align: center;" scope="col">Quantity</th>
+          <th style="text-align: right;" scope="col">Price</th>
       </tr>
       </thead>
       <tbody>
@@ -18,6 +19,7 @@
             <th scope="row">{{ $i++ }}</th>
             <td><a href="{{ route('admin.stock.history', $list->product_id) }}" class="text-primary">{{ $list->product_name }}</a></td>
             <td style="text-align: center;">{{ $list->quantity }}</td>
+            <td style="text-align: right;">{{ number_format($list->current_price, 1) }}</td>
          </tr>
         @endforeach
       </tbody>

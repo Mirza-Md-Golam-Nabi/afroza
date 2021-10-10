@@ -3,7 +3,7 @@
 
 <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
    <p style="margin: 0px;padding:0px;">Date: <span style="font-weight: bold;">{{ date("d-m-Y", strtotime($date)) }}</span></p>
-   <small>Last Update: {{ date("d-m-Y H:i:s", strtotime($lastUpdate)) }}</small>
+   <small>Update: {{ date("d-m-y H:i:s", strtotime($lastUpdate)) }}</small>
 </div>
 
 <div class="clearfix">

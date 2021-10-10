@@ -231,7 +231,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'SessionController' => App\Http\Controllers\SessionController::class,        
+        'SessionController' => App\Http\Controllers\SessionController::class,
+        'ViewController' => App\Http\Controllers\ViewController::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'PDF' => Meneses\LaravelMpdf\Facades\LaravelMpdf::class,
 

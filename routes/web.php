@@ -83,6 +83,7 @@ Route::group(['prefix'=>'admin'], function(){
         Route::get('/monthly-{productId}', 'ReportController@monthlyReport')->name('admin.report.monthly');
         Route::get('/yearly', 'ReportController@yearlyReport')->name('admin.report.yearly');
         Route::get('/company', 'ReportController@companyReport')->name('admin.report.company');
+        Route::get('/ajax', 'ReportController@ajaxReport')->name('admin.report.ajax');
     });
 
     Route::group(['prefix'=>'export'], function(){

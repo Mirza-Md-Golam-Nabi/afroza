@@ -76,6 +76,7 @@ class ReportController extends Controller
 
     public function dateDetailsReport($date){
         $title = "Stock History";
+        $profit = 0;
 
         $stockinData = DB::table('stockin_history as a')
                     ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
@@ -121,6 +122,7 @@ class ReportController extends Controller
                 $newarray = array_keys($resultArr);
                 $stockSummary[$newarray[0]]['stockout'] = $value->stockout;
                 $stockSummary[$newarray[0]]['profit']   = $value->sell - $value->buy;
+                $profit += $value->sell - $value->buy;
             }else{
                 $newArray = [];
                 $newArray['product_id']     = $value->product_id;
@@ -129,6 +131,7 @@ class ReportController extends Controller
                 $newArray['stockout']       = $value->stockout;
                 $newArray['profit']         = $value->sell - $value->buy;
                 array_push($stockSummary, $newArray);
+                $profit += $value->sell - $value->buy;
             } 
         }
 
@@ -136,112 +139,22 @@ class ReportController extends Controller
             return $object1['product_name'] > $object2['product_name']; 
         });
 
-        return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate]);
+        return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate, 'profit'=>$profit]);
     }
 
     public function weeklyReport(){
         $title = "Weekly Report";
-        $stockSummary = [];
-        for($i = 0; $i < 4; $i++){
-            $stockoutData = DB::table('stockout_history as a')
-                        ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                        ->select('a.product_id', DB::raw('SUM(a.quantity) AS stockout'), DB::raw('SUM(a.buying_price) AS buy'), DB::raw('SUM(a.selling_price) AS sell'), 'b.product_name')
-                        ->where(DB::raw('WEEKOFYEAR(date)'), '=', DB::raw('WEEKOFYEAR(NOW()) - '.$i))
-                        ->groupBy('a.product_id')
-                        ->get();
+        $data = SessionController::weekly();
 
-            foreach ($stockoutData as $key => $value) {
-                if(SessionController::filterByDow($stockSummary,$value->product_id)){
-                    $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
-                    $newarray = array_keys($resultArr);
-                    if($i == 0){
-                        $stockSummary[$newarray[0]]['current'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit0'] = $value->sell - $value->buy;
-                    }
-                    elseif($i == 1){
-                        $stockSummary[$newarray[0]]['prev1'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit1'] = $value->sell - $value->buy;
-                    }
-                    elseif($i == 2){
-                        $stockSummary[$newarray[0]]['prev2'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit2'] = $value->sell - $value->buy;
-                    }
-                    elseif($i == 3){
-                        $stockSummary[$newarray[0]]['prev3'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit3'] = $value->sell - $value->buy;
-                    }
-                }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['current']        = $i == 0 ? $value->stockout : 0;
-                    $newArray['profit0']        = $i == 0 ? ($value->sell - $value->buy) : 0;
-                    $newArray['prev1']          = $i == 1 ? $value->stockout : 0;
-                    $newArray['profit1']        = $i == 1 ? ($value->sell - $value->buy) : 0;
-                    $newArray['prev2']          = $i == 2 ? $value->stockout : 0;
-                    $newArray['profit2']        = $i == 2 ? ($value->sell - $value->buy) : 0;
-                    $newArray['prev3']          = $i == 3 ? $value->stockout : 0;
-                    $newArray['profit3']        = $i == 3 ? ($value->sell - $value->buy) : 0;
-                    array_push($stockSummary, $newArray);
-                } 
-            }
-        }
-
-        return view('admin.report.stockWeek')->with(['title'=>$title, 'stockSummary'=>$stockSummary]);
+        return view('admin.report.stockWeek')->with(['title'=>$title, 'stockSummary'=>$data['stockSummary'], 'profit'=>$data['profit']]);
     }
 
     public function last3MonthReport(){
         $title = "Last 3 Months Report";
-        $currentMonth = date("m");
-        $stockSummary = [];
-        for($i = 0; $i < 3; $i++){
-            $month = $currentMonth - $i;
-            if($currentMonth >= $month){
-                $year = date('Y');
-            }else{
-                $year = date('Y') - 1;
-            }
-
-            $stockoutData = DB::table('stockout_history as a')
-                        ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                        ->select('a.product_id', DB::raw('SUM(a.quantity) AS stockout'), DB::raw('SUM(a.buying_price) AS buy'), DB::raw('SUM(a.selling_price) AS sell'), 'b.product_name')
-                        ->where(DB::raw('MONTH(a.date)'), $month)
-                        ->where(DB::raw('YEAR(a.date)'), $year)
-                        ->groupBy('a.product_id')
-                        ->get();
-
-            foreach ($stockoutData as $key => $value) {
-                if(SessionController::filterByDow($stockSummary,$value->product_id)){
-                    $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
-                    $newarray = array_keys($resultArr);
-                    if($i == 0){
-                        $stockSummary[$newarray[0]]['current_out'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit0'] = $value->sell - $value->buy;
-                    }
-                    elseif($i == 1){
-                        $stockSummary[$newarray[0]]['prev1_out'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit1'] = $value->sell - $value->buy;
-                    }
-                    elseif($i == 2){
-                        $stockSummary[$newarray[0]]['prev2_out'] = $value->stockout;
-                        $stockSummary[$newarray[0]]['profit2'] = $value->sell - $value->buy;
-                    }
-                }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['current_out']    = $i == 0 ? $value->stockout : 0;
-                    $newArray['profit0']        = $i == 0 ? ($value->sell - $value->buy) : 0;
-                    $newArray['prev1_out']      = $i == 1 ? $value->stockout : 0;
-                    $newArray['profit1']        = $i == 1 ? ($value->sell - $value->buy) : 0;
-                    $newArray['prev2_out']      = $i == 2 ? $value->stockout : 0;
-                    $newArray['profit2']        = $i == 2 ? ($value->sell - $value->buy) : 0;
-                    array_push($stockSummary, $newArray);
-                } 
-            }
-        }
         
-        return view('admin.report.stockLast3Month')->with(['title'=>$title, 'stockSummary'=>$stockSummary]);
+        $data = SessionController::last3Month();
+
+        return view('admin.report.stockLast3Month')->with(['title'=>$title, 'stockSummary'=>$data['stockSummary'], 'profit'=>$data['profit']]);
     }
 
     public function productList(){
@@ -285,41 +198,10 @@ class ReportController extends Controller
 
     public function yearlyReport(){
         $title = "Yearly Report";
-        $currentYear = date("Y");
-        $stockSummary = [];
-        for($i = 0; $i < 3; $i++){
-            $year = $currentYear - $i;
-
-            $stockoutData = DB::table('stockout_history as a')
-                        ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                        ->select('a.product_id', DB::raw('SUM(a.quantity) AS stockout'), 'b.product_name')
-                        ->where(DB::raw('YEAR(a.date)'), $year)
-                        ->groupBy('a.product_id')
-                        ->get();
-
-            foreach ($stockoutData as $key => $value) {
-                if(SessionController::filterByDow($stockSummary,$value->product_id)){
-                    $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
-                    $newarray = array_keys($resultArr);
-                    if($i == 0)
-                        $stockSummary[$newarray[0]]['current_out'] = $value->stockout;
-                    elseif($i == 1)
-                        $stockSummary[$newarray[0]]['prev1_out'] = $value->stockout;
-                    elseif($i == 2)
-                        $stockSummary[$newarray[0]]['prev2_out'] = $value->stockout;
-                }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['current_out']    = $i == 0 ? $value->stockout : 0;
-                    $newArray['prev1_out']      = $i == 1 ? $value->stockout : 0;
-                    $newArray['prev2_out']      = $i == 2 ? $value->stockout : 0;
-                    array_push($stockSummary, $newArray);
-                } 
-            }
-        }
         
-        return view('admin.report.stockYear')->with(['title'=>$title, 'stockSummary'=>$stockSummary]);
+        $data = SessionController::yearly();
+
+        return view('admin.report.stockYear')->with(['title'=>$title, 'stockSummary'=>$data['stockSummary'], 'profit'=>$data['profit']]);
     }
 
     public function companyReport(Request $request){        
@@ -352,7 +234,34 @@ class ReportController extends Controller
         return view('admin.report.company')->with(['title'=>$title, 'monthList'=>$monthList, 'stockSummary'=>$stockSummary, 'brand'=>$brand->brand_name]);
     }
 
+    public function ajaxReport(Request $request){
+        /** name means 1=weekly / 2=monthly / 3=yearly */
+        $name = $request->get("name");
+        /** data means 1=stock / 2=profit */
+        $data = $request->get("data");
 
+        if($name == 1){
+            if($data == 1){
+                return ViewController::weeklyStock();
+            }else{
+                return ViewController::weeklyProfit();
+            }
+        }elseif($name == 2){
+            if($data == 1){
+                return ViewController::last3MonthStock();
+            }else{
+                return ViewController::last3MonthProfit();
+            }
+        }elseif($name == 3){
+            if($data == 1){
+                return ViewController::yearlyStock();
+            }else{
+                return ViewController::yearlyProfit();
+            }
+        }else{
+            return "";
+        }
+    }
 
 }
 
