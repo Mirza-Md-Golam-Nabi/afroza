@@ -26,7 +26,7 @@ class AdminController extends Controller
         $title = "Admin Dashboard";
         $currentMonth = date("m");
         $profit = [];
-        for($i = 0; $i < 2; $i++){
+        for($i = 0; $i < 3; $i++){
             $month = $currentMonth - $i;
             $year = ($currentMonth >= $month) ? date('Y') : date('Y') - 1;
 
@@ -36,9 +36,36 @@ class AdminController extends Controller
                 ->where(DB::raw('YEAR(a.date)'), $year)
                 ->first();
 
-            $profit['profit'.$i] = $data->sell - $data->buy;
+            $profit[$i] = $data->sell - $data->buy;
         }
-        return view('admin.index')->with(['title'=>$title, 'profit'=>$profit]);
+
+        $barChart = $this->barChart();
+        $chartData = "";
+        foreach($barChart as $value){
+            $chartData .= "['".date('d-m', strtotime($value->date))."', ".$value->profit."],";
+        }
+
+        $barChartData = rtrim($chartData, ",");
+
+        $data = [
+            'chartData' => $barChartData
+        ];
+
+        return view('admin.index')->with(['title'=>$title, 'profit'=>$profit, 'data'=>$data]);
+    }
+
+    public function barChart(){
+        $start_date = date('Y-m-d');
+        $end_date   = date('Y-m-d', strtotime($start_date. '-30 days'));
+
+        $data = DB::table('stockout_history')
+        ->select('date', DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'))
+        ->whereBetween('date', [$end_date, $start_date])
+        ->groupBy('date')
+        ->orderBy('date', 'desc')
+        ->get();
+
+        return $data;
     }
     
 }

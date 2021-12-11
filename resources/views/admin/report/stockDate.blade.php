@@ -19,7 +19,9 @@
       </tr>
       </thead>
       <tbody>
+         @php $in=0; $out=0; @endphp
         @foreach($stockSummary AS $stock)
+        @php $in+=$stock['stockin']; $out+=$stock['stockout']; @endphp
          <tr>
             <td><a href="{{ route('admin.stock.history', $stock['product_id']) }}" class="text-primary">{{ $stock['product_name'] }}</a></td>
             <td style="text-align: center;">{{ $stock['stockin'] }}</td>
@@ -28,6 +30,14 @@
          </tr>
         @endforeach
       </tbody>
+      <tfoot>
+         <tr>
+            <th style="text-align: center">Total</th>
+            <th style="text-align: center">{{ $in }}</th>
+            <th style="text-align: center">{{ $out }}</th>
+            <th style="text-align: center">{{ $profit }}</th>
+         </tr>
+      </tfoot>
    </table>
 </div>
 

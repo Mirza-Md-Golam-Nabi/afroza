@@ -225,13 +225,13 @@ class ReportController extends Controller
         ];
 
         $monthList = SessionController::monthList($serial);
-        $stockSummary = SessionController::dataFetch($request_data);
+        $data = SessionController::dataFetch($request_data);
 
         if($has_year){
-            return SessionController::ajaxData($monthList, $stockSummary);
+            return SessionController::ajaxData($monthList, $data);
         }
 
-        return view('admin.report.company')->with(['title'=>$title, 'monthList'=>$monthList, 'stockSummary'=>$stockSummary, 'brand'=>$brand->brand_name]);
+        return view('admin.report.company')->with(['title'=>$title, 'monthList'=>$monthList, 'stockSummary'=>$data['stock'], 'totalStock'=>$data['totalStock'], 'brand'=>$brand->brand_name]);
     }
 
     public function ajaxReport(Request $request){
@@ -239,27 +239,43 @@ class ReportController extends Controller
         $name = $request->get("name");
         /** data means 1=stock / 2=profit */
         $data = $request->get("data");
-
-        if($name == 1){
+        $serial = $request->get("serial");
+        $year = $request->get("year");
+        if($year){
+            $brand = Brand::select('id', 'brand_name')->where('brand_name', $name)->first();
+            $request_data = [
+                'brand' => $brand->id,
+                'serial' => $serial,
+                'year' => $year,
+                'data' => $data
+            ];
             if($data == 1){
-                return ViewController::weeklyStock();
+                return ViewController::companyStock($request_data);
             }else{
-                return ViewController::weeklyProfit();
-            }
-        }elseif($name == 2){
-            if($data == 1){
-                return ViewController::last3MonthStock();
-            }else{
-                return ViewController::last3MonthProfit();
-            }
-        }elseif($name == 3){
-            if($data == 1){
-                return ViewController::yearlyStock();
-            }else{
-                return ViewController::yearlyProfit();
+                return ViewController::companyProfit($request_data);
             }
         }else{
-            return "";
+            if($name == 1){
+                if($data == 1){
+                    return ViewController::weeklyStock();
+                }else{
+                    return ViewController::weeklyProfit();
+                }
+            }elseif($name == 2){
+                if($data == 1){
+                    return ViewController::last3MonthStock();
+                }else{
+                    return ViewController::last3MonthProfit();
+                }
+            }elseif($name == 3){
+                if($data == 1){
+                    return ViewController::yearlyStock();
+                }else{
+                    return ViewController::yearlyProfit();
+                }
+            }else{
+                return "";
+            }
         }
     }
 

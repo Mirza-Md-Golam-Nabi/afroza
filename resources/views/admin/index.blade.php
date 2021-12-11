@@ -7,7 +7,7 @@
 <style>
    .contain{
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       grid-gap: 5px;
    }
 </style>
@@ -15,8 +15,9 @@
 <div>
    <h4 style="text-align: center;" class="p-2 bg-success text-white">Profit</h4>
    <div class="contain">
-      <div style="text-align: center;">This Month<br>{{ number_format($profit['profit0'], 1) }}</div>
-      <div style="text-align: center;">Prev Month<br>{{ number_format($profit['profit1'], 1) }}</div>
+      @for($i=0; $i<count($profit); $i++)
+      <div style="text-align: center;">{{ date('F', strtotime('-'.$i.' month')) }}<br>{{ number_format($profit[$i], 1) }}</div>
+      @endfor
    </div>
 </div>
 <hr>
@@ -57,10 +58,42 @@
    @include('admin.includes.divWithParam')
    @endforeach
 
-
-
    
 </div>
+<hr>
+<h6 style="text-align: center;" class="p-2 bg-success text-white">Last 30 Days Profit</h6>
+<script type="text/javascript">
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Profit per Day'],
+        <?php echo $data['chartData']; ?>
+      ]);
+
+      var options = {
+          title: 'Profit',
+          width: '100%',
+          height: 600,
+          chartArea: {left:20,top:0,width:'90%',height:'100%'},
+          legend: { position: 'none' },
+          bars: 'horizontal', // Required for Material Bar Charts.
+          axes: {
+            x: {
+              0: { side: 'top', label: 'Amount (Tk)'} // Top x-axis.
+            }
+          },
+          bar: { groupWidth: "90%" }
+        };
+
+      var chart = new google.charts.Bar(document.getElementById('barchart'));
+
+      chart.draw(data, options);
+    }
+  </script>
+<div id="barchart" class="d-flex align-items-stretch flex-wrap"></div>
 
 
 @endsection

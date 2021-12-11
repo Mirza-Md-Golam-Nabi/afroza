@@ -97,4 +97,78 @@ class ViewController extends Controller
       
         return $output;
     }
+
+    public static function companyStock($request_data){
+        $monthList = SessionController::monthList($request_data['serial']);
+        $data = SessionController::dataFetch($request_data);
+
+        $output = '';
+        $output .= '<table class="table table-striped table-sm">
+        <thead>
+        <tr> 
+            <th scope="col">প্রোডাক্ট নাম</th>';
+            for($i = 0; $i < 12; $i++){
+                $output .= '<th scope="col" style="text-align: center;">'.$monthList[$i].'</th>';
+            }
+            $output .= '<th scope="col" style="text-align: center;">Total</th>';          
+            $output .= '</tr>
+        </thead>
+        <tbody>';
+            foreach($data['stock'] AS $stock){
+                $sum = 0;
+            $output .= '<tr>
+                <td>'.$stock['product_name'].'</td>';
+                for($i = 1; $i <= 12; $i++){
+                    $output .= '<td style="text-align: center;">'.$stock[$i].'</td>';
+                    $sum += $stock[$i];
+                }
+                $output .= '<th style="text-align: center;">'.$sum.'</th>';
+                $output .= '</tr>';
+            }
+            $output .= '</tbody><tfoot><tr>';
+            $output .= '<th style="text-align: center">Total</th>';
+            for($i = 1; $i <= 12; $i++){
+                $output .= '<th style="text-align: center;">'.$data['totalStock'][$i].'</th>';
+            }
+        $output .= '</tr></tfoot></table>';
+
+        return $output;
+    }
+
+    public static function companyProfit($request_data){
+        $monthList = SessionController::monthList($request_data['serial']);
+        $data = SessionController::dataFetch($request_data);
+        
+        $output = '';
+        $output .= '<table class="table table-striped table-sm">
+        <thead>
+        <tr> 
+            <th scope="col">প্রোডাক্ট নাম</th>';
+            for($i = 0; $i < 12; $i++){
+                $output .= '<th scope="col" style="text-align: center;">'.$monthList[$i].'</th>';
+            }
+            $output .= '<th scope="col" style="text-align: center;">Total</th>';
+            $output .= '</tr>
+        </thead>
+        <tbody>';
+            foreach($data['profit'] AS $stock){
+                $sum = 0;
+            $output .= '<tr>
+                <td>'.$stock['product_name'].'</td>';
+                for($i = 1; $i <= 12; $i++){
+                    $output .= '<td style="text-align: center;">'.$stock[$i].'</td>';
+                    $sum += $stock[$i];
+                }
+                $output .= '<th style="text-align: center;">'.$sum.'</th>';
+                $output .= '</tr>';
+            }
+            $output .= '</tbody><tfoot><tr>';
+            $output .= '<th style="text-align: center">Total</th>';
+            for($i = 1; $i <= 12; $i++){
+                $output .= '<td style="text-align: center; font-weight:bold;">'.$data['totalProfit'][$i].'</td>';
+            }
+        $output .= '</tr></tfoot></table>';
+
+        return $output;
+    }
 }

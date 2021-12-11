@@ -28,7 +28,7 @@ class ProductController extends Controller
             return $next($request);
         });
     }
-    
+
     public function productCreate(){
         $title = "Product Create";
         $typeList = Type::orderBy('type_name', 'asc')->get();
@@ -68,13 +68,13 @@ class ProductController extends Controller
                 array_push($othersUnit, $newArray);
             }
         }
-        
+
         $newArray = [];
         $newArray['unit_value'] = 1;
         $newArray['unit_name'] = $main_unit;
         array_push($othersUnit, $newArray);
 
-        $othersUnit = json_encode($othersUnit);        
+        $othersUnit = json_encode($othersUnit);
 
         try{
             DB::beginTransaction();
@@ -99,9 +99,11 @@ class ProductController extends Controller
             $stockData->quantity        = 0;
             $stockData->unit            = $main_unit;
             $stockData->warning         = $warning;
+            $stockData->current_price   = 0;
+            $stockData->applicable_stock= 0;
             $stockData->updated_by      = Auth::user()->id;
             $stockData->save();
-            
+
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
@@ -122,7 +124,7 @@ class ProductController extends Controller
         $create_text = "Create Product";
         $productList = DB::table('products as a')
                     ->leftJoin('categories as c', 'c.id', '=', 'a.category_id')
-                    ->leftJoin('types as d', 'd.id', '=', 'a.type_id')                    
+                    ->leftJoin('types as d', 'd.id', '=', 'a.type_id')
                     ->leftJoin('brands as e', 'e.id', '=', 'a.brand_id')
                     ->select('a.id', 'a.product_name', 'a.main_unit', 'a.others_unit', 'a.warning', 'a.status', 'c.category_name', 'd.type_name', 'e.brand_name')
                     ->orderBy('a.status', 'desc')
@@ -159,14 +161,14 @@ class ProductController extends Controller
         $product_name   = $request->product_name;
         $main_unit      = $request->main_unit;
         $warning        = $request->warning;
-        
+
         if(empty($warning)){
             $warning = 0;
         }
-        
+
         $others_unit_value = $request->others_unit_value;
         $others_unit_name  = $request->others_unit_name;
-        
+
         $othersUnit = [];
         if(isset($others_unit_name) && count($others_unit_value) > 0){
             for($i=0; $i < count($others_unit_value); $i++){
@@ -180,7 +182,7 @@ class ProductController extends Controller
         $newArray['unit_value'] = 1;
         $newArray['unit_name'] = $main_unit;
         array_push($othersUnit, $newArray);
-        
+
         $othersUnit = json_encode($othersUnit);
 
         $productData = Product::where('id', $product_id)->first();

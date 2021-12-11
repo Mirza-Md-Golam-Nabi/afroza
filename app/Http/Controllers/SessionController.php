@@ -78,41 +78,74 @@ class SessionController extends Controller
     }
 
     public static function serialMonthData($brand_id, $year){
-        $stockSummary = [];
+        $stock = [];
+        $profit = [];
+        $totalProfit = [];
+        $totalStock = [];
         for($i = 1; $i <= 12; $i++){
-            $stockSummary = self::dataFind($stockSummary, $brand_id, $month = $i, $year, ($i+1));
+            $data = self::dataFind($stock, $profit, $totalProfit, $totalStock, $brand_id, $month = $i, $year, $i);
+            $stock = $data['stock'];
+            $profit = $data['profit'];
+            $totalProfit = $data['totalProfit'];
+            $totalStock = $data['totalStock'];
         }
-        return $stockSummary;
+
+        $data = [
+            'stock' => $stock,
+            'profit' => $profit,
+            'totalProfit' => $totalProfit,
+            'totalStock' => $totalStock
+        ];
+        
+        return $data;
     }
 
     public static function backwardMonthData($brand_id){
+        $stock = [];
+        $profit = [];
+        $totalProfit = [];
+        $totalStock = [];
         $currentMonth = date("m");
-        $stockSummary = [];
         for($i = 0; $i < 12; $i++){
             $month = $currentMonth - $i;
             $year = $currentMonth >= $month ? date('Y') : date('Y') - 1;
 
-            $stockSummary = self::dataFind($stockSummary, $brand_id, $month, $year, ($i+1));            
+            $data = self::dataFind($stock, $profit, $totalProfit, $totalStock, $brand_id, $month, $year, ($i+1));
+            $stock = $data['stock'];
+            $profit = $data['profit'];
+            $totalProfit = $data['totalProfit'];
+            $totalStock = $data['totalStock'];
         }
 
-        return $stockSummary;
+        $data = [
+            'stock' => $stock,
+            'profit' => $profit,
+            'totalProfit' => $totalProfit,
+            'totalStock' => $totalStock
+        ];
+
+        return $data;
     }
 
-    public static function dataFind($stockSummary, $brand_id, $month, $year, $i){
+    public static function dataFind($stock, $profit, $totalProfit, $totalStock, $brand_id, $month, $year, $i){
         $stockoutData = DB::table('stockout_history as a')
                         ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                        ->select('a.product_id', 'b.product_name', DB::raw('SUM(a.quantity) AS stockout'))
+                        ->select('a.product_id', 'b.product_name', DB::raw('SUM(a.quantity) AS stockout'), DB::raw('SUM(a.buying_price) AS buy'), DB::raw('SUM(a.selling_price) AS sell'))
                         ->where('b.brand_id', $brand_id)
                         ->where(DB::raw('MONTH(a.date)'), $month)
                         ->where(DB::raw('YEAR(a.date)'), $year)
                         ->groupBy('a.product_id')
                         ->get();
-                        
+
+        $profitTotal = 0;
+        $stockTotal = 0;
         foreach ($stockoutData as $key => $value) {
-            if(SessionController::filterByDow($stockSummary,$value->product_id)){
-                $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
+            $profitTotal = $profitTotal + $value->sell - $value->buy;
+            $stockTotal = $stockTotal + $value->stockout;
+            if(SessionController::filterByDow($stock, $value->product_id)){
+                $resultArr = SessionController::filterByDow($stock, $value->product_id);
                 $newarray = array_keys($resultArr);
-                $stockSummary[$newarray[0]][$i] = $value->stockout;
+                $stock[$newarray[0]][$i] = $value->stockout;
             }else{
                 $newArray = [];
                 $newArray['product_id']    = $value->product_id;
@@ -129,18 +162,58 @@ class SessionController extends Controller
                 $newArray['10']       = $i == 10 ? $value->stockout : 0;
                 $newArray['11']       = $i == 11 ? $value->stockout : 0;
                 $newArray['12']       = $i == 12 ? $value->stockout : 0;
-                array_push($stockSummary, $newArray);
-            } 
+                // $newArray['stock'.$i] = count($stock) > 0 ? ($stock['stock'.$i] + $value->stockout) : $value->stockout;
+                array_push($stock, $newArray);
+            }
+
+            if(SessionController::filterByDow($profit, $value->product_id)){
+                $resultArr = SessionController::filterByDow($profit, $value->product_id);
+                $newarray = array_keys($resultArr);
+                $profit[$newarray[0]][$i] = $value->sell - $value->buy;
+            }else{
+                $newArray = [];
+                $newArray['product_id']    = $value->product_id;
+                $newArray['product_name']  = $value->product_name;
+                $newArray['1']        = $i == 1 ? ($value->sell - $value->buy) : 0;
+                $newArray['2']        = $i == 2 ? ($value->sell - $value->buy) : 0;
+                $newArray['3']        = $i == 3 ? ($value->sell - $value->buy) : 0;
+                $newArray['4']        = $i == 4 ? ($value->sell - $value->buy) : 0;
+                $newArray['5']        = $i == 5 ? ($value->sell - $value->buy) : 0;
+                $newArray['6']        = $i == 6 ? ($value->sell - $value->buy) : 0;
+                $newArray['7']        = $i == 7 ? ($value->sell - $value->buy) : 0;
+                $newArray['8']        = $i == 8 ? ($value->sell - $value->buy) : 0;
+                $newArray['9']        = $i == 9 ? ($value->sell - $value->buy) : 0;
+                $newArray['10']       = $i == 10 ? ($value->sell - $value->buy) : 0;
+                $newArray['11']       = $i == 11 ? ($value->sell - $value->buy) : 0;
+                $newArray['12']       = $i == 12 ? ($value->sell - $value->buy) : 0;
+                
+                array_push($profit, $newArray);
+            }
         }
 
-        usort($stockSummary, function ($object1, $object2) { 
+        $totalProfit[$i] = $profitTotal;
+        $totalStock[$i] = $stockTotal;
+
+        usort($stock, function ($object1, $object2) { 
+            return $object1['product_name'] > $object2['product_name']; 
+        });
+        usort($profit, function ($object1, $object2) { 
             return $object1['product_name'] > $object2['product_name']; 
         });
 
-        return $stockSummary;
+        $data = [
+            'stock' => $stock,
+            'profit' => $profit,
+            'totalProfit' => $totalProfit,
+            'totalStock' => $totalStock
+        ];
+
+        return $data;
     }
 
-    public static function ajaxData($monthList, $stockSummary){
+    public static function ajaxData($monthList, $data){
+        $stockSummary = $data['stock'];
+        $totalStock = $data['totalStock'];
         $output = '';
         $output .= '<table class="table table-striped table-sm">
         <thead>
@@ -150,19 +223,27 @@ class SessionController extends Controller
             for($i = 0; $i < 12; $i++){
                 $output .= '<th scope="col" style="text-align: center;">'.$monthList[$i].'</th>';
             }
+            $output .= '<th style="text-align: center;">Total</th>';
             $output .= '</tr>
         </thead>
         <tbody>';
           foreach($stockSummary AS $stock){
+            $sum = 0;
             $output .= '<tr>
                 <td>'.$stock['product_name'].'</td>';
                 for($i = 1; $i <= 12; $i++){
                     $output .= '<td style="text-align: center;">'.$stock[$i].'</td>';
+                    $sum += $stock[$i];
                 }
+                $output .= '<th style="text-align: center;">'.$sum.'</th>';
                 $output .= '</tr>';
           }
-          $output .= '</tbody>
-        </table>';
+          $output .= '</tbody><tfoot><tr>';
+          $output .= '<th style="text-align:center;">Total</th>';
+          foreach($totalStock as $stock){
+            $output .= '<th style="text-align:center;">'.$stock.'</th>';
+          }
+          $output .= '</tr></tfoot></table>';
         return $output;
     }
 

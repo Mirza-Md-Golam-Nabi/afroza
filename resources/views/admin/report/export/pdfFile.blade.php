@@ -35,19 +35,30 @@
                     @for($i = 0; $i < 12; $i++)
                         <td style="text-align: center;">{{ $dataList['monthList'][$i] }}</td>
                     @endfor
+                    <th style="text-align: center;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($dataList['stockSummary'] AS $stock){
+                        @php $sum = 0; @endphp
                         <tr>
                         <td style="font-size:16px;">{{ $stock["product_name"] }}</td>
                         @for($i = 1; $i <= 12; $i++){
                         <td style="text-align: center;">{{ $stock[$i] }}</td>
+                        @php $sum += $stock[$i]; @endphp
                         @endfor
+                        <th style="text-align: center;">{{ $sum }}</th>
                         </tr>
                     @endforeach
-                    
                 </tbody>
+                {{-- <tfoot>
+                    <tr>
+                        <th style="text-align: center;">Total</th>
+                        @foreach($dataList['totalStock'] as $stock)
+                        <th style="text-align: center;">{{ $stock }}</th>
+                        @endforeach
+                    </tr>
+                </tfoot> --}}
             </table>
         </div>
     </body>

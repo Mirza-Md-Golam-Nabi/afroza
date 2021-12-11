@@ -41,10 +41,11 @@ class ExportController extends Controller
         ];
 
         $monthList = SessionController::monthList($serial);
-        $stockSummary = SessionController::dataFetch($request_data);
+        $data = SessionController::dataFetch($request_data);
 
         $dataList = [
-            'stockSummary'  => $stockSummary, 
+            'stockSummary'  => $data['stock'],
+            'totalStock'    => $data['totalStock'],
             'monthList'     => $monthList,
             'brand'         => $brand->brand_name,
             'year'          => $year_num

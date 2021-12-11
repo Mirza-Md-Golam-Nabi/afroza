@@ -15,6 +15,9 @@
 <div>
    Year : <span id="year">Last 12 Month</span>
 </div>
+
+@include('admin.includes.stockProfit')
+
 <div class="clearfix mt-3">
    <div id="dataShow" style="width: 100%;overflow-x:scroll;">
       <table class="table table-striped table-sm">
@@ -24,18 +27,30 @@
              @for($i = 0; $i < 12; $i++)
              <th scope="col" style="text-align: center;">{{ $monthList[$i] }}</th>
              @endfor
+             <th scope="col" style="text-align: center;">{{ "Total" }}</th>
          </tr>
          </thead>
          <tbody>
            @foreach($stockSummary AS $stock)
             <tr>
+               @php $sum = 0; @endphp
                <td>{{ $stock['product_name'] }}</td>
                @for($i = 1; $i <= 12; $i++)
                   <td style="text-align: center;">{{ $stock[$i] }}</td>
+                  @php $sum += $stock[$i]; @endphp
                @endfor
+               <th style="text-align: center;">{{ $sum }}</th>
             </tr>
            @endforeach
          </tbody>
+         <tfoot>
+            <tr>
+               <th style="text-align: center;">Total</th>
+               @foreach($totalStock AS $stock)
+                  <th style="text-align: center;">{{ $stock }}</th>
+               @endforeach
+            </tr>
+         </tfoot>
       </table>
    </div>
    <div class="mt-2">
@@ -111,10 +126,34 @@
                success: function(data) {
                   $('#dataShow').html(data);
                   $('#year').html(year_value);
+                  // $('.data').attr("name");
                }
             });
          }
       });
+
+      $('.data').change(function(){
+         /** data means 1=stock / 2=profit */
+         var data = $(this).attr("value");
+         var name = "{{$brand}}";
+         var year = $('#year').html();
+         var serial = 1;
+         if(year == "Last 12 Month"){
+            serial = 0;
+            year = 10;
+            year_value = "Last 12 Month";
+         }
+         if(data != ''){
+            $.ajax({ 
+               url: "{{ route('admin.report.ajax') }}?name="+name+"&data="+data+"&serial="+serial+"&year="+year,
+               method: 'GET',
+               success: function(data) {
+                  $('#dataShow').html(data);
+               }
+            });
+         }
+      });
+
    });
 
 </script>

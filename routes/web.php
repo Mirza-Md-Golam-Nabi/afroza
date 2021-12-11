@@ -89,6 +89,10 @@ Route::group(['prefix'=>'admin'], function(){
     Route::group(['prefix'=>'export'], function(){
         Route::get('/company', 'ExportController@companyReport')->name('admin.export.report.company');
     });
+
+    Route::group(['prefix'=>'others'], function(){
+        Route::get('/upcoming-price', 'OthersController@upcomingPrice')->name('admin.others.upcoming.price');
+    });
 });
 
 Auth::routes();

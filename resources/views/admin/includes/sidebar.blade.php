@@ -15,8 +15,9 @@
             <li><a href="{{ route('admin.category.list') }}">Category</a></li>
             <li><a href="{{ route('admin.product.list') }}">Product</a></li>
             <li><a href="{{ route('admin.stock.add') }}">Price Add</a></li>
+            <li><a href="{{ route('admin.others.upcoming.price') }}">Upcoming Price</a></li>
          </ul>
-      </li> 
+      </li>
       <li>
          <a href="#stock" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Stock</a>
          <ul class="collapse list-unstyled" id="stock">
