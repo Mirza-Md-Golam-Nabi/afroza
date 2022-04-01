@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Model\Type;
 use App\Model\Category;
-use Auth;
-use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -24,11 +25,10 @@ class AdminController extends Controller
 
     public function index(){
         $title = "Admin Dashboard";
-        $currentMonth = date("m");
         $profit = [];
         for($i = 0; $i < 3; $i++){
-            $month = $currentMonth - $i;
-            $year = ($currentMonth >= $month) ? date('Y') : date('Y') - 1;
+            $month = date("m",  strtotime( date( 'Y-m-01' )." -$i months"));
+            $year = date("Y",  strtotime( date( 'Y-m-01' )." -$i months"));
 
             $data = DB::table('stockout_history as a')
                 ->select(DB::raw('SUM(a.buying_price) AS buy'), DB::raw('SUM(a.selling_price) AS sell'))
@@ -67,14 +67,14 @@ class AdminController extends Controller
 
         return $data;
     }
-    
+
 }
 
 
-/* 
+/*
 try{
     DB::beginTransaction();
-    
+
     DB::commit();
 }catch(Exception $e){
     DB::rollback();

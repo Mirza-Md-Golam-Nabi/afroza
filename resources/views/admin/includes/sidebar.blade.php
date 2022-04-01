@@ -15,9 +15,15 @@
             <li><a href="{{ route('admin.category.list') }}">Category</a></li>
             <li><a href="{{ route('admin.product.list') }}">Product</a></li>
             <li><a href="{{ route('admin.stock.add') }}">Price Add</a></li>
-            <li><a href="{{ route('admin.others.upcoming.price') }}">Upcoming Price</a></li>
          </ul>
       </li>
+      <li>
+        <a href="#price" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Price</a>
+        <ul class="collapse list-unstyled" id="price">
+           <li><a href="{{ route('admin.others.upcoming.price') }}">Upcoming Price</a></li>
+           <li><a href="{{ route('admin.others.previous.price') }}">Previous Price</a></li>
+        </ul>
+     </li>
       <li>
          <a href="#stock" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Stock</a>
          <ul class="collapse list-unstyled" id="stock">
@@ -27,7 +33,7 @@
             <li><a href="{{ route('admin.stockout.create') }}">Stock-out</a></li>
             <li><a href="{{ route('admin.stockout.date') }}">Stock-out History</a></li>
          </ul>
-       </li>  
+       </li>
        <li>
          <a href="#report" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Report</a>
          <ul class="collapse list-unstyled" id="report">
@@ -35,9 +41,10 @@
             <li><a href="{{ route('admin.report.weekly') }}">Weekly Report</a></li>
             <li><a href="{{ route('admin.report.last.3.month') }}">Last 3 Month Report</a></li>
             <li><a href="{{ route('admin.report.product.list') }}">Monthly Report</a></li>
+            <li><a href="{{ route('admin.report.monthly.profit', ['year'=>date('Y')]) }}">Monthly Profit</a></li>
             <li><a href="{{ route('admin.report.yearly') }}">Yearly Report</a></li>
-            @foreach(SessionController::brandList() as $brand)            
-            <li><a href="{{ route('admin.report.company',['name'=>$brand->brand_name]) }}">{{ $brand->brand_name." Report" }}</a></li>            
+            @foreach(SessionController::brandList() as $brand)
+            <li><a href="{{ route('admin.report.company',['name'=>$brand->brand_name]) }}">{{ $brand->brand_name." Report" }}</a></li>
             @endforeach
          </ul>
        </li>

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('test', 'TestController@test')->name('test');
@@ -13,7 +14,7 @@ Route::get('/stock/check', 'GeneralController@stockCheck')->name('general.stock.
 // Admin Controller
 
 Route::group(['prefix'=>'admin'], function(){
-    Route::get('/dashboard','AdminController@index')->name('admin.dashboard');  
+    Route::get('/dashboard','AdminController@index')->name('admin.dashboard');
 
     Route::group(['prefix'=>'type'], function(){
         Route::get('/create','TypeController@typeCreate')->name('admin.type.create');
@@ -57,18 +58,19 @@ Route::group(['prefix'=>'admin'], function(){
         Route::post('/update','StockinController@stockinUpdate')->name('admin.stockin.update');
         Route::get('/date', 'StockinController@stockinDate')->name('admin.stockin.date');
     });
- 
+
     Route::group(['prefix'=>'stockout'], function(){
         Route::get('/create', 'StockoutController@stockoutCreate')->name('admin.stockout.create');
         Route::post('/store', 'StockoutController@stockoutStore')->name('admin.stockout.store');
-        Route::get('/list/{date}', 'StockoutController@stockoutList')->name('admin.stockout.list');
+        Route::get('/list/group/{date}', 'StockoutController@stockoutList')->name('admin.stockout.list');
+        Route::get('/list/all/{date}', 'StockoutController@stockoutListAll')->name('admin.stockout.list.all');
         Route::get('/edit-{date}/{id}', 'StockoutController@stockoutEdit')->name('admin.stockout.edit');
         Route::post('/update', 'StockoutController@stockoutUpdate')->name('admin.stockout.update');
         Route::get('/date', 'StockoutController@stockoutDate')->name('admin.stockout.date');
     });
- 
+
     Route::group(['prefix'=>'stock'], function(){
-        Route::get('/current', 'StockController@stockCurrent')->name('admin.stock.current');        
+        Route::get('/current', 'StockController@stockCurrent')->name('admin.stock.current');
         Route::get('/history-{id}', 'StockController@stockHistory')->name('admin.stock.history');
         Route::get('/add', 'StockController@add')->name('admin.stock.add');
         Route::post('/store', 'StockController@store')->name('admin.stock.store');
@@ -81,6 +83,7 @@ Route::group(['prefix'=>'admin'], function(){
         Route::get('/last-3-month', 'ReportController@last3MonthReport')->name('admin.report.last.3.month');
         Route::get('/product', 'ReportController@productList')->name('admin.report.product.list');
         Route::get('/monthly-{productId}', 'ReportController@monthlyReport')->name('admin.report.monthly');
+        Route::get('/monthly/profit', 'ReportController@monthlyProfit')->name('admin.report.monthly.profit');
         Route::get('/yearly', 'ReportController@yearlyReport')->name('admin.report.yearly');
         Route::get('/company', 'ReportController@companyReport')->name('admin.report.company');
         Route::get('/ajax', 'ReportController@ajaxReport')->name('admin.report.ajax');
@@ -92,6 +95,8 @@ Route::group(['prefix'=>'admin'], function(){
 
     Route::group(['prefix'=>'others'], function(){
         Route::get('/upcoming-price', 'OthersController@upcomingPrice')->name('admin.others.upcoming.price');
+        Route::get('/previous-price', 'OthersController@previousPrice')->name('admin.others.previous.price');
+        Route::get('/previous-price-{id}', 'OthersController@previousPriceId')->name('admin.others.previous.price.id');
     });
 });
 

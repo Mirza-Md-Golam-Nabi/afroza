@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Exception;
 
-use Auth;
-use DB;
-
-use App\Model\Product;
-use App\Model\ProductPrice;
 use App\Model\Stock;
+use App\Model\Product;
 use App\Model\Stockin;
- 
+use App\Model\ProductPrice;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 class StockinController extends Controller
 {
     public function __construct(){
@@ -26,7 +26,7 @@ class StockinController extends Controller
             return $next($request);
         });
     }
-    
+
     public function stockinCreate(){
         $title = "Stock In";
         $productList = Product::where('status', 1)->orderBy('product_name', 'asc')->get();
@@ -116,7 +116,7 @@ class StockinController extends Controller
 
         $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
         $lastUpdate = $inLast->updated_at;
-                
+
         return view('admin.stock.stockin.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date, 'lastUpdate'=>$lastUpdate]);
     }
 
@@ -168,7 +168,7 @@ class StockinController extends Controller
 
         try{
             DB::beginTransaction();
-            
+
             Stockin::where('date', $oldDate)->where('product_id', $oldProductId)->delete();
             ProductPrice::where('date', $oldDate)->where('product_id', $oldProductId)->delete();
 
@@ -202,8 +202,8 @@ class StockinController extends Controller
                 $stockin->buying_price  = $product['price'];
                 $stockin->updated_by    = Auth::user()->id;
                 $stockin->save();
-            }  
-            
+            }
+
             DB::commit();
         }catch(Exception $e){
             DB::rollback();

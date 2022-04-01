@@ -17,7 +17,8 @@
             <td><a href="{{ route('admin.stock.history', $stock['product_id']) }}" class="text-primary">{{ $stock['product_name'] }}</a></td>
             <td style="text-align: center;">
                ৳ = {{ $stock['current']['price'] }}<br>
-               Qnty: {{ $stock['current']['quantity'] }}
+               Qnty: {{ $stock['current']['quantity'] }}<br>
+               লাভঃ {{ $stock['current']['profit'] }}
             </td>
             <td style="text-align: center;">
                @if(count($stock['upcoming']) > 0)

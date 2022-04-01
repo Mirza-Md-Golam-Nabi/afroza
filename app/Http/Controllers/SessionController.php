@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
+use Auth;
+use App\User;
+use App\Model\Type;
 
 use App\Model\Brand;
-use App\Model\Category;
 use App\Model\Product;
-use App\Model\Type;
-use App\User;
-use Auth;
-use DB;
+use App\Model\Category;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class SessionController extends Controller
 {
@@ -21,7 +21,6 @@ class SessionController extends Controller
               ->select('date')
               ->groupBy('date')
               ->orderBy('date', 'desc')
-              ->skip(0)
               ->take(30)
               ->get();
     }
@@ -32,9 +31,25 @@ class SessionController extends Controller
             ->get();
     }
 
+    public static function date_reverse_short($date){
+        return date("d-m-y", strtotime($date));
+    }
+
+    public static function date_reverse_full($date){
+        return date("d-m-Y", strtotime($date));
+    }
+
+    public static function monthCalculation($iterate_value){
+        return date("m",  strtotime( date( 'Y-m-01' )." -$iterate_value months"));
+    }
+
+    public static function yearCalculation($iterate_value){
+        return date("Y",  strtotime( date( 'Y-m-01' )." -$iterate_value months"));
+    }
+
     /**
      * 1 = serial Month i.e Jan to Dec
-     * 0 = Last 12 month Backward  
+     * 0 = Last 12 month Backward
     */
 
     public static function monthList($data){
@@ -96,7 +111,7 @@ class SessionController extends Controller
             'totalProfit' => $totalProfit,
             'totalStock' => $totalStock
         ];
-        
+
         return $data;
     }
 
@@ -107,7 +122,7 @@ class SessionController extends Controller
         $totalStock = [];
         $currentMonth = date("m");
         for($i = 0; $i < 12; $i++){
-            $month = $currentMonth - $i;
+            $month = self::monthCalculation($i);
             $year = $currentMonth >= $month ? date('Y') : date('Y') - 1;
 
             $data = self::dataFind($stock, $profit, $totalProfit, $totalStock, $brand_id, $month, $year, ($i+1));
@@ -162,7 +177,7 @@ class SessionController extends Controller
                 $newArray['10']       = $i == 10 ? $value->stockout : 0;
                 $newArray['11']       = $i == 11 ? $value->stockout : 0;
                 $newArray['12']       = $i == 12 ? $value->stockout : 0;
-                // $newArray['stock'.$i] = count($stock) > 0 ? ($stock['stock'.$i] + $value->stockout) : $value->stockout;
+
                 array_push($stock, $newArray);
             }
 
@@ -186,7 +201,7 @@ class SessionController extends Controller
                 $newArray['10']       = $i == 10 ? ($value->sell - $value->buy) : 0;
                 $newArray['11']       = $i == 11 ? ($value->sell - $value->buy) : 0;
                 $newArray['12']       = $i == 12 ? ($value->sell - $value->buy) : 0;
-                
+
                 array_push($profit, $newArray);
             }
         }
@@ -194,11 +209,11 @@ class SessionController extends Controller
         $totalProfit[$i] = $profitTotal;
         $totalStock[$i] = $stockTotal;
 
-        usort($stock, function ($object1, $object2) { 
-            return $object1['product_name'] > $object2['product_name']; 
+        usort($stock, function ($object1, $object2) {
+            return $object1['product_name'] > $object2['product_name'];
         });
-        usort($profit, function ($object1, $object2) { 
-            return $object1['product_name'] > $object2['product_name']; 
+        usort($profit, function ($object1, $object2) {
+            return $object1['product_name'] > $object2['product_name'];
         });
 
         $data = [
@@ -217,7 +232,7 @@ class SessionController extends Controller
         $output = '';
         $output .= '<table class="table table-striped table-sm">
         <thead>
-        <tr> 
+        <tr>
             <th scope="col">প্রোডাক্ট নাম</th>';
             $output .= "";
             for($i = 0; $i < 12; $i++){
@@ -333,7 +348,7 @@ class SessionController extends Controller
         $profitSummary = [];
         $profit = [];
         for($i = 0; $i < 3; $i++){
-            $month = $currentMonth - $i;
+            $month = self::monthCalculation($i);
             if($currentMonth >= $month){
                 $year = date('Y');
             }else{

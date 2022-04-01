@@ -16,41 +16,51 @@
    <h4 style="text-align: center;" class="p-2 bg-success text-white">Profit</h4>
    <div class="contain">
       @for($i=0; $i<count($profit); $i++)
-      <div style="text-align: center;">{{ date('F', strtotime('-'.$i.' month')) }}<br>{{ number_format($profit[$i], 1) }}</div>
+        <div style="text-align: center;">
+            {{ date("F",  strtotime( date( 'Y-m-01' )." -$i months")) }}
+            <br>
+            {{ number_format($profit[$i], 1) }}
+        </div>
       @endfor
    </div>
 </div>
 <hr>
 <div class="d-flex align-items-stretch flex-wrap">
-   
-   <?php 
+
+   <?php
       $divHead = "Daily Report";
       $url = "admin.report.date";
    ?>
    @include('admin.includes.div')
-   <?php 
+   <?php
       $divHead = "Weekly Report";
       $url = "admin.report.weekly";
    ?>
    @include('admin.includes.div')
-   <?php 
+   <?php
       $divHead = "Last 3 Month Report";
       $url = "admin.report.last.3.month";
    ?>
    @include('admin.includes.div')
-   <?php 
+   <?php
       $divHead = "Monthly Report";
       $url = "admin.report.product.list";
    ?>
    @include('admin.includes.div')
-   <?php 
+   <?php
+      $divHead = "Monthly Profit";
+      $url = "admin.report.monthly.profit";
+      $param = ['year'=>date('Y')];
+   ?>
+   @include('admin.includes.divWithParam')
+   <?php
       $divHead = "Yearly Report";
       $url = "admin.report.yearly";
    ?>
    @include('admin.includes.div')
 
    @foreach(SessionController::brandList() as $brand)
-   <?php 
+   <?php
       $divHead = $brand->brand_name." Report";
       $url = 'admin.report.company';
       $param = ['name'=>$brand->brand_name];
@@ -58,7 +68,7 @@
    @include('admin.includes.divWithParam')
    @endforeach
 
-   
+
 </div>
 <hr>
 <h6 style="text-align: center;" class="p-2 bg-success text-white">Last 30 Days Profit</h6>

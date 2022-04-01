@@ -2,7 +2,7 @@
 @section('maincontent')
 
 <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
-   <p style="margin: 0px;padding:0px;">Date: <span style="font-weight: bold;">{{ date("d-m-Y", strtotime($date)) }}</span></p>
+   <p style="margin: 0px;padding:0px;">Date: <span style="font-weight: bold;">{{ SessionController::date_reverse_full($date) }}</span></p>
    <small>Update: {{ date("d-m-y H:i:s", strtotime($lastUpdate)) }}</small>
 </div>
 
@@ -17,7 +17,7 @@
       </tr>
       </thead>
       <tbody>
-         @php $i=0; @endphp
+         @php $i=0; $total_quantity = 0; @endphp
          @foreach($dataList AS $list)
          @php $i++; @endphp
          <tr>
@@ -26,9 +26,17 @@
             <td style="text-align: right;">{{ $list->price }}</td>
             <td style="text-align: center;"><a href="{{ route('admin.stockin.edit', [$date, $list->product_id]) }}" class="text-primary">Edit</a></td>
          </tr>
-
+            @php $total_quantity += $list->quantity; @endphp
         @endforeach
       </tbody>
+      <tfoot>
+        <tr>
+            <th>&nbsp;</th>
+            <th style="text-align: center;">{{ $total_quantity }}</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </tfoot>
    </table>
 </div>
 

@@ -3,7 +3,7 @@
 
 <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
    <div class="d-flex justify-content-between">
-      <p style="margin: 0px;padding:0px;">Date: <span style="font-weight: bold;">{{ date("d-m-Y", strtotime($date)) }}</span></p>
+      <p style="margin: 0px;padding:0px;">Date: <span style="font-weight: bold;">{{ SessionController::date_reverse_full($date) }}</span></p>
       <p style="margin: 0px;padding:0px;">Profit: <span style="font-weight: bold;">{{ number_format($profit, 1) }}</span></p>
    </div>
    <small>Update: {{ date("d-m-y H:i:s", strtotime($lastUpdate)) }}</small>

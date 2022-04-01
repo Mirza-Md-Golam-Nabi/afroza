@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Model\ProductPrice;
+use Exception;
 use App\Model\Stock;
+
 use App\Model\Stockin;
 use App\Model\Stockout;
-use Auth;
-use DB;
+use App\Model\ProductPrice;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StockController extends Controller
 {
@@ -48,13 +49,21 @@ class StockController extends Controller
     public function stockHistory($product_id){
         $title = "Stock History";
         $product = Stock::where('product_id', $product_id)->first();
-        $stockinData = Stockin::select('date', DB::raw('SUM(quantity) AS stockin'))
+        $stockinData = Stockin::select(
+                        'date',
+                        DB::raw('SUM(quantity) AS stockin')
+                    )
                     ->where('product_id', $product_id)
                     ->orderBy('date','desc')
                     ->groupBy('date')
                     ->get();
 
-        $stockoutData = Stockout::select('date', DB::raw('SUM(quantity) AS stockout'), DB::raw('SUM(buying_price) AS buy'),           DB::raw('SUM(selling_price) AS sell'))
+        $stockoutData = Stockout::select(
+                        'date',
+                        DB::raw('SUM(quantity) AS stockout'),
+                        DB::raw('SUM(buying_price) AS buy'),
+                        DB::raw('SUM(selling_price) AS sell')
+                    )
                     ->where('product_id', $product_id)
                     ->orderBy('date','desc')
                     ->groupBy('date')
@@ -62,7 +71,7 @@ class StockController extends Controller
 
         $inLast  = DB::table('stockin_history')->select('updated_at')->where('product_id', $product_id)->orderBy('id','desc')->first();
         $outLast = DB::table('stockout_history')->select('updated_at')->where('product_id', $product_id)->orderBy('id','desc')->first();
-        
+
         if($inLast && $outLast){
             $lastUpdate = $inLast->updated_at > $outLast->updated_at ? $inLast->updated_at : $outLast->updated_at;
         }elseif($inLast){
@@ -95,11 +104,11 @@ class StockController extends Controller
                 $newArray['stockout'] = $value->stockout;
                 $newArray['profit']   = $value->sell - $value->buy;
                 array_push($stockSummary, $newArray);
-            } 
+            }
         }
 
-        usort($stockSummary, function ($object1, $object2) { 
-            return $object1['date'] < $object2['date']; 
+        usort($stockSummary, function ($object1, $object2) {
+            return $object1['date'] < $object2['date'];
         });
 
         return view('admin.report.stockProduct')->with(['title'=>$title, 'product'=>$product, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate]);

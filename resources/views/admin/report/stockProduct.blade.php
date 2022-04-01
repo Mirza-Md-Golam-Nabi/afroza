@@ -12,7 +12,7 @@
 <div class="clearfix">
    <table class="table table-bordered table-striped table-sm">
       <thead>
-      <tr> 
+      <tr>
           <th scope="col" style="text-align: center;">তারিখ</th>
           <th scope="col" style="text-align: center;">জমা</th>
           <th scope="col" style="text-align: center;">মোট</th>
@@ -25,7 +25,7 @@
         @php $i=1; $sum=$product->quantity; @endphp
         @foreach($stockSummary AS $stock)
          <tr>
-            <td style="text-align: center;">{{ date("d-m-y", strtotime($stock['date'])) }}</td>
+            <td style="text-align: center;">{{ SessionController::date_reverse_short($stock['date']) }}</td>
             <td style="text-align: center;@if($stock['stockin'] > 0) color:#f00; font-weight:bold; @endif">{{ $stock['stockin'] }}</td>
             <td style="text-align: center;">{{ $sum + $stock['stockout'] }}</td>
             <td style="text-align: center;">{{ $stock['stockout'] }}</td>

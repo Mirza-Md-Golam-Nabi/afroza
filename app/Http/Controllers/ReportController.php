@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use DB;
 
 use App\Model\Brand;
 use App\Model\Stock;
 use App\Model\Stockin;
 use App\Model\Stockout;
-use DB;
-use Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -55,20 +55,20 @@ class ReportController extends Controller
 
         $data = [];
         $newArray = [];
-        foreach($stockinData as $key => $value){            
+        foreach($stockinData as $key => $value){
             $newArray['date'] = $value->date;
             array_push($data, $newArray);
         }
 
-        foreach ($stockoutData as $key => $value) {            
+        foreach ($stockoutData as $key => $value) {
             if($this->searchInDate($value->date, $data)){
                 $newArray['date'] = $value->date;
                 array_push($data, $newArray);
             }
         }
-        
-        usort($data, function ($object1, $object2) { 
-            return $object1['date'] < $object2['date']; 
+
+        usort($data, function ($object1, $object2) {
+            return $object1['date'] < $object2['date'];
         });
 
         return view('admin.stock.stockDateArray')->with(['title'=>$title, 'url'=>$url, 'data'=>$data]);
@@ -94,7 +94,7 @@ class ReportController extends Controller
 
         $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
         $outLast = DB::table('stockout_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
-        
+
         if($inLast && $outLast){
             $lastUpdate = $inLast->updated_at > $outLast->updated_at ? $inLast->updated_at : $outLast->updated_at;
         }elseif($inLast){
@@ -127,16 +127,16 @@ class ReportController extends Controller
                 $newArray = [];
                 $newArray['product_id']     = $value->product_id;
                 $newArray['product_name']   = $value->product_name;
-                $newArray['stockin']        = 0; 
+                $newArray['stockin']        = 0;
                 $newArray['stockout']       = $value->stockout;
                 $newArray['profit']         = $value->sell - $value->buy;
                 array_push($stockSummary, $newArray);
                 $profit += $value->sell - $value->buy;
-            } 
+            }
         }
 
-        usort($stockSummary, function ($object1, $object2) { 
-            return $object1['product_name'] > $object2['product_name']; 
+        usort($stockSummary, function ($object1, $object2) {
+            return $object1['product_name'] > $object2['product_name'];
         });
 
         return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate, 'profit'=>$profit]);
@@ -151,7 +151,7 @@ class ReportController extends Controller
 
     public function last3MonthReport(){
         $title = "Last 3 Months Report";
-        
+
         $data = SessionController::last3Month();
 
         return view('admin.report.stockLast3Month')->with(['title'=>$title, 'stockSummary'=>$data['stockSummary'], 'profit'=>$data['profit']]);
@@ -168,15 +168,10 @@ class ReportController extends Controller
     public function monthlyReport($product_id){
         $title = "Monthly Report";
         $product = Stock::select('product_id', 'product_name', 'quantity')->where('product_id', $product_id)->first();
-        $currentMonth = date("m");
         $stockSummary = [];
         for($i = 0; $i < 12; $i++){
-            $month = $currentMonth - $i;
-            if($currentMonth >= $month){
-                $year = date('Y');
-            }else{
-                $year = date('Y') - 1;
-            }
+            $month = SessionController::monthCalculation($i);
+            $year = SessionController::yearCalculation($i);
 
             $stockoutData = DB::table('stockout_history as a')
                         ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
@@ -189,22 +184,34 @@ class ReportController extends Controller
 
             $newArray = [];
             $newArray['quantity'] = count($stockoutData) > 0 ? $stockoutData[0]->stockout : 0;
-            $newArray['month']    = date("F", strtotime('-'.$i.' month'));
+            $newArray['month']    = date("F",  strtotime( date( 'Y-m-01' )." -$i months"));
             array_push($stockSummary, $newArray);
         }
-        
+
         return view('admin.report.stockMonth')->with(['title'=>$title, 'product'=>$product, 'stockSummary'=>$stockSummary]);
+    }
+
+    public function monthlyProfit(Request $request){
+        $title = 'Monthly Profit';
+        $year = $request->get('year');
+        $profitData = DB::table('stockout_history')
+                ->select(DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'), DB::raw('MONTHNAME(date) as month'))
+                ->where(DB::raw('YEAR(date)'), $year)
+                ->groupBy(DB::raw('YEAR(date)'), DB::raw('MONTH(date)'))
+                ->get();
+
+        return view('admin.report.profit.monthly')->with(['title'=>$title, 'year'=>$year, 'profitData'=>$profitData]);
     }
 
     public function yearlyReport(){
         $title = "Yearly Report";
-        
+
         $data = SessionController::yearly();
 
         return view('admin.report.stockYear')->with(['title'=>$title, 'stockSummary'=>$data['stockSummary'], 'profit'=>$data['profit']]);
     }
 
-    public function companyReport(Request $request){        
+    public function companyReport(Request $request){
         $serial_month = $request->get('serial');
         $company_name = $request->get('name');
         $has_year = $request->get('year');
