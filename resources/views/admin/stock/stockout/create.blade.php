@@ -85,7 +85,11 @@
                    }else if(data.price == 0){
                      $('#msg'+dataQuantityId).html("Buying price is not set");
                    }else{
-                     $('#msg'+dataQuantityId).html("");
+                        if(!dataQuantityValue){
+                            $('#msg'+dataQuantityId).html("Product Price = " + data.price);
+                        }else{
+                            $('#msg'+dataQuantityId).html("Product Price = " + (data.price * dataQuantityValue));
+                        }
                    }
                   }
             });
@@ -108,7 +112,11 @@
                }else if(data.price == 0){
                   $('#msg'+dataProductId).html("Buying price is not set");
                }else{
-                  $('#msg'+dataProductId).html("");
+                   if(!dataQuantityValue){
+                        $('#msg'+dataProductId).html("Product Price = " + data.price);
+                   }else{
+                        $('#msg'+dataProductId).html("Product Price = " + (data.price * dataQuantityValue));
+                   }
                }
             }
          });

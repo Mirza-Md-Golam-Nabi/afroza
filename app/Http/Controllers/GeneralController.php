@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Model\Category;
 use App\Model\Product;
-use Auth;
-use DB;
+use App\Model\Category;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class GeneralController extends Controller
@@ -24,7 +22,7 @@ class GeneralController extends Controller
         }else{
             $output = '<option value="">No Data Found</option>';
         }
-        return $output; 
+        return $output;
     }
 
     public function productCheck(Request $request){
