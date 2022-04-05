@@ -38,7 +38,10 @@ class GeneralController extends Controller
 
     public function stockCheck(Request $request){
         $product_id = $request->get('productID');
-        $data = DB::table('stock')->select('quantity','current_price')->where('product_id', $product_id)->first();
-        return ['quantity'=>$data->quantity, 'price'=>$data->current_price];
+        $data = DB::table('stock')
+                ->select('product_name','quantity','current_price')
+                ->where('product_id', $product_id)
+                ->first();
+        return ['product_name'=>$data->product_name, 'quantity'=>$data->quantity, 'price'=>$data->current_price];
     }
 }

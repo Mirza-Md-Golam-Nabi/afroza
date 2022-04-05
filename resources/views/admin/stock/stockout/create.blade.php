@@ -86,9 +86,9 @@
                      $('#msg'+dataQuantityId).html("Buying price is not set");
                    }else{
                         if(!dataQuantityValue){
-                            $('#msg'+dataQuantityId).html("Product Price = " + data.price);
+                            $('#msg'+dataQuantityId).html(data.product_name" = " + data.price);
                         }else{
-                            $('#msg'+dataQuantityId).html("Product Price = " + (data.price * dataQuantityValue));
+                            $('#msg'+dataQuantityId).html(data.product_name" = " + (data.price * dataQuantityValue));
                         }
                    }
                   }
@@ -113,9 +113,9 @@
                   $('#msg'+dataProductId).html("Buying price is not set");
                }else{
                    if(!dataQuantityValue){
-                        $('#msg'+dataProductId).html("Product Price = " + data.price);
+                        $('#msg'+dataProductId).html(data.product_name" = " + data.price);
                    }else{
-                        $('#msg'+dataProductId).html("Product Price = " + (data.price * dataQuantityValue));
+                        $('#msg'+dataProductId).html(data.product_name" = " + (data.price * dataQuantityValue));
                    }
                }
             }
