@@ -1,9 +1,21 @@
 @extends('admin.layout.app')
 @section('maincontent')
 
-<div style="margin-bottom: 1.5rem; margin-top: 1rem;">
-   <p style="margin: 0px;padding:0px;">Date: <span style="font-weight: bold;">{{ SessionController::date_reverse_full($date) }}</span></p>
-   <small>Update: {{ date("d-m-y H:i:s", strtotime($lastUpdate)) }}</small>
+<div class="d-flex justify-content-between mb-3">
+    <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
+        <p style="margin: 0px;padding:0px;">Date:
+            <span style="font-weight: bold;">{{ SessionController::date_reverse_full($date) }}</span>
+        </p>
+        <small>Update: {{ date("d-m-y H:i:s", strtotime($lastUpdate)) }}</small>
+    </div>
+    <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
+        <a href="{{ route('admin.stockin.list', $date) }}">
+            <button class="btn btn-success btn-sm">Group</button>
+        </a>
+        <a href="{{ route('admin.stockin.list.all', $date) }}">
+            <button class="btn btn-success btn-sm px-3">All</button>
+        </a>
+    </div>
 </div>
 
 <div class="clearfix">

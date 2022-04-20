@@ -16,13 +16,13 @@
          <input type="date" name="date" class="form-control" id="date" autocomplete="off" required value="{{ $date }}">
       </div>
       <div class="form-group">
-         <label for="">Product</label> 
+         <label for="">Product</label>
          <div id="product">
             @php $i=0; @endphp
             @foreach($stockoutList as $stockout)
             @php $i++; @endphp
             <div id="div{{ $i }}">
-               <div class="d-flex justify-content-around flex-grow-1 mb-1">  
+               <div class="d-flex justify-content-around flex-grow-1 mb-1">
                   <select name="product_id[]" data-product="{{$i}}" required class="form-control mr-1 target_product">
                      <option value="">Please Select One</option>
                      @foreach($productList as $list)
@@ -38,14 +38,14 @@
                <div class="d-flex justify-content-around">
                   <input type="number" name="quantity[]" data-quantity="{{$i}}" required class="form-control mr-1 quantity" placeholder="Quantity" value="{{ $stockout->quantity }}">
                   <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price" value={{ $stockout->selling_price}}>
-                  <span class="btn ml-1 btn-danger btn_remove_product" id="{{ $i }}">X</span>      
+                  <span class="btn ml-1 btn-danger btn_remove_product" id="{{ $i }}">X</span>
                </div>
                <div class=" mb-4"><small id="msg{{$i}}" style="color:#f00;"></small></div>
             </div>
             @endforeach
          </div>
      </div>
-      <input type="submit" class="btn btn-primary" value="Update">    
+      <input type="submit" class="btn btn-primary" value="Update">
    </form>
 
 
@@ -65,7 +65,7 @@
         var dataQuantityValue = parseInt($(this).val());
         var prodId = document.querySelector("[data-product='"+dataQuantityId+"']").value;
         if(dataQuantityValue){
-            $.ajax({ 
+            $.ajax({
                 url: "{{ route('general.stock.check') }}?productID=" + prodId,
                 method: 'GET',
                 success: function(data) {
@@ -74,7 +74,11 @@
                    }else if(data.price == 0){
                      $('#msg'+dataQuantityId).html("Buying price is not set");
                    }else{
-                     $('#msg'+dataQuantityId).html("");
+                        if(!dataQuantityValue){
+                            $('#msg'+dataQuantityId).html(data.product_name + " = " + data.price);
+                        }else{
+                            $('#msg'+dataQuantityId).html(data.product_name + " = " + (data.price * dataQuantityValue));
+                        }
                    }
                   }
             });
@@ -88,7 +92,7 @@
       var dataProductValue = parseInt($(this).val());
       var dataQuantityValue = document.querySelector("[data-quantity='"+dataProductId+"']").value;
       if(dataProductValue){
-         $.ajax({ 
+         $.ajax({
             url: "{{ route('general.stock.check') }}?productID=" + dataProductValue,
             method: 'GET',
             success: function(data) {
@@ -97,8 +101,12 @@
                }else if(data.price == 0){
                   $('#msg'+dataProductId).html("Buying price is not set");
                }else{
-                  $('#msg'+dataProductId).html("");
-               }
+                        if(!dataQuantityValue){
+                            $('#msg'+dataQuantityId).html(data.product_name + " = " + data.price);
+                        }else{
+                            $('#msg'+dataQuantityId).html(data.product_name + " = " + (data.price * dataQuantityValue));
+                        }
+                   }
             }
          });
       }else{

@@ -105,12 +105,27 @@ class StockinController extends Controller
     }
 
     public function stockinList($date){
-        $title = "Stock-in History";
+        $title = "Stock-in History by Group";
         $dataList = DB::table('stockin_history as a')
                 ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
                 ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), DB::raw('SUM(a.buying_price) as price'), 'b.product_name')
                 ->where('a.date', $date)
                 ->groupBy('a.date', 'a.product_id')
+                ->orderBy('b.product_name', 'asc')
+                ->get();
+
+        $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        $lastUpdate = $inLast->updated_at;
+
+        return view('admin.stock.stockin.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date, 'lastUpdate'=>$lastUpdate]);
+    }
+
+    public function stockinListAll($date){
+        $title = "Stock-in History by All";
+        $dataList = DB::table('stockin_history as a')
+                ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
+                ->select('a.product_id', 'a.quantity', 'a.buying_price as price', 'b.product_name')
+                ->where('a.date', $date)
                 ->orderBy('b.product_name', 'asc')
                 ->get();
 
@@ -211,7 +226,7 @@ class StockinController extends Controller
 
         if($stockin){
             session()->flash('success','Stock Updated Successfully.');
-            return redirect()->route('admin.stockin.list', $date);
+            return redirect()->route('admin.stockin.list.all', $date);
         }else{
             session()->flash('error','Stock does not Update successfully.');
             return redirect()->back()->withInput();
@@ -220,7 +235,7 @@ class StockinController extends Controller
 
     public function stockinDate(){
         $title = "Stock In Date";
-        $url = "admin.stockin.list";
+        $url = "admin.stockin.list.all";
         $data = SessionController::stockDate('stockin_history');
 
         return view('admin.stock.stockDate')->with(['title'=>$title, 'url'=>$url, 'data'=>$data]);

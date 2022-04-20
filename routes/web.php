@@ -53,7 +53,8 @@ Route::group(['prefix'=>'admin'], function(){
     Route::group(['prefix'=>'stockin'], function(){
         Route::get('/create','StockinController@stockinCreate')->name('admin.stockin.create');
         Route::post('/store','StockinController@stockinStore')->name('admin.stockin.store');
-        Route::get('/list/{date}','StockinController@stockinList')->name('admin.stockin.list');
+        Route::get('/list/group/{date}','StockinController@stockinList')->name('admin.stockin.list');
+        Route::get('/list/all/{date}','StockinController@stockinListAll')->name('admin.stockin.list.all');
         Route::get('/edit-{date}/{id}','StockinController@stockinEdit')->name('admin.stockin.edit');
         Route::post('/update','StockinController@stockinUpdate')->name('admin.stockin.update');
         Route::get('/date', 'StockinController@stockinDate')->name('admin.stockin.date');
