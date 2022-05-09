@@ -17,12 +17,22 @@ use Illuminate\Support\Facades\Storage;
 class SessionController extends Controller
 {
     public static function stockDate($table_name){
-        return DB::table($table_name)
+        $fetch_data = DB::table($table_name)
               ->select('date')
               ->groupBy('date')
               ->orderBy('date', 'desc')
               ->take(30)
               ->get();
+
+        $data = [];
+        foreach($fetch_data as $fetch){
+            array_push($data, [
+                'date' => date("d-m-y", strtotime($fetch->date)),
+                'original' => $fetch->date,
+            ]);
+        }
+
+        return $data;
     }
 
     public static function brandList(){

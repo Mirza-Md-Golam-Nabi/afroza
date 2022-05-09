@@ -25,53 +25,55 @@ class ReportController extends Controller
         });
     }
 
-    function searchInDate($search, $array) {
-        foreach ($array as $key => $val) {
-            if ($val['date'] === $search) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
     public function dateReport(){
         $title = "Daily Report";
         $url = "admin.report.date.details";
         $stockinData = Stockin::select('date')
                     ->orderBy('date','desc')
                     ->groupBy('date')
-                    ->orderBy('date', 'desc')
-                    ->skip(0)
                     ->take(20)
                     ->get();
 
         $stockoutData = Stockout::select('date')
                     ->orderBy('date','desc')
                     ->groupBy('date')
-                    ->orderBy('date', 'desc')
-                    ->skip(0)
                     ->take(30)
                     ->get();
 
         $data = [];
-        $newArray = [];
-        foreach($stockinData as $key => $value){
-            $newArray['date'] = $value->date;
-            array_push($data, $newArray);
+        foreach($stockinData as $value){
+            array_push($data, [
+                'date' => $value->date,
+                'original' => $value->date,
+            ]);
         }
 
-        foreach ($stockoutData as $key => $value) {
-            if($this->searchInDate($value->date, $data)){
-                $newArray['date'] = $value->date;
-                array_push($data, $newArray);
+        foreach ($stockoutData as $value) {
+            // check the date already exist or not. if date is not exist, add a new array.
+            if(empty(array_search($value->date, array_column($data, 'date')))){
+                array_push($data, [
+                    'date'      => $value->date,
+                    'original'  => $value->date,
+                ]);
             }
         }
 
+        // sorting the date.
         usort($data, function ($object1, $object2) {
             return $object1['date'] < $object2['date'];
         });
 
-        return view('admin.stock.stockDateArray')->with(['title'=>$title, 'url'=>$url, 'data'=>$data]);
+        // change the date format from Y-m-d to d-m-y. e.g - 2021-12-30 to 30-12-21
+        foreach($data as $key=>$dat){
+            $data[$key]['date'] = date("d-m-y", strtotime($dat['date']));
+        }
+
+        $all_data = [
+            'title' => $title,
+            'url'   => $url,
+            'data'  => $data,
+        ];
+        return view('admin.stock.stockDateArray')->with($all_data);
     }
 
     public function dateDetailsReport($date){
@@ -287,5 +289,3 @@ class ReportController extends Controller
     }
 
 }
-
-
