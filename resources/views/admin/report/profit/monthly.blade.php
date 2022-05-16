@@ -21,7 +21,7 @@
   	@foreach($profitData as $data)
     <tr>
       <th scope="row" style="text-align:center;">{{ ++$i }}</th>
-      <td>{{ $data->month }}</td>
+      <td><a href="{{ route('admin.report.total.daily.profit', ['month'=>$data->month_id, 'year'=>$year]) }}" class="text-primary">{{ $data->month }}</a></td>
       <td style="text-align:right;">{{ number_format($data->profit, 2) }}</td>
     </tr>
     @endforeach

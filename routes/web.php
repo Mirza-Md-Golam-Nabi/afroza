@@ -81,6 +81,7 @@ Route::group(['prefix'=>'admin'], function(){
     Route::group(['prefix'=>'report'], function(){
         Route::get('/date','ReportController@dateReport')->name('admin.report.date');
         Route::get('/date-{date}', 'ReportController@dateDetailsReport')->name('admin.report.date.details');
+        Route::get('/daily/profit', 'ReportController@totalDailyProfit')->name('admin.report.total.daily.profit');
         Route::get('/weekly', 'ReportController@weeklyReport')->name('admin.report.weekly');
         Route::get('/last-3-month', 'ReportController@last3MonthReport')->name('admin.report.last.3.month');
         Route::get('/product', 'ReportController@productList')->name('admin.report.product.list');

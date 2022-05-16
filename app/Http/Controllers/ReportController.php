@@ -76,6 +76,27 @@ class ReportController extends Controller
         return view('admin.stock.stockDateArray')->with($all_data);
     }
 
+    public function totalDailyProfit(Request $request){
+        $month = $request->get('month');
+        $year  = $request->get('year');
+
+        $stockout = Stockout::select(DB::raw('DATE_FORMAT(date, "%d %b %Y") as date'), DB::raw('DATE_FORMAT(date, "%W") as day'), DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'))
+                    ->where(DB::raw('MONTH(date)'), $month)
+                    ->where(DB::raw('YEAR(date)'), $year)
+                    ->orderBy('date', 'asc')
+                    ->groupBy('date')
+                    ->get();
+
+        $allData = [
+            'title' => 'Daily Profit',
+            'month' => $month,
+            'year' => $year,
+            'profitData' => $stockout,
+        ];
+
+        return view('admin.report.profit.daily')->with($allData);
+    }
+
     public function dateDetailsReport($date){
         $title = "Stock History";
         $profit = 0;
@@ -197,7 +218,7 @@ class ReportController extends Controller
         $title = 'Monthly Profit';
         $year = $request->get('year');
         $profitData = DB::table('stockout_history')
-                ->select(DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'), DB::raw('MONTHNAME(date) as month'))
+                ->select(DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'), DB::raw('MONTHNAME(date) as month'), DB::raw('MONTH(date) as month_id'))
                 ->where(DB::raw('YEAR(date)'), $year)
                 ->groupBy(DB::raw('YEAR(date)'), DB::raw('MONTH(date)'))
                 ->get();
