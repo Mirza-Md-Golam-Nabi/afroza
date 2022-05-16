@@ -80,7 +80,7 @@ class ReportController extends Controller
         $month = $request->get('month');
         $year  = $request->get('year');
 
-        $stockout = Stockout::select(DB::raw('DATE_FORMAT(date, "%d %b %Y") as date'), DB::raw('DATE_FORMAT(date, "%W") as day'), DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'))
+        $stockout = Stockout::select('date as full_date', DB::raw('DATE_FORMAT(date, "%d %b %Y") as date'), DB::raw('DATE_FORMAT(date, "%W") as day'), DB::raw('(SUM(selling_price) - SUM(buying_price)) as profit'))
                     ->where(DB::raw('MONTH(date)'), $month)
                     ->where(DB::raw('YEAR(date)'), $year)
                     ->orderBy('date', 'asc')
