@@ -8,7 +8,7 @@
    Calender : <span id="year">{{ date("F", mktime(0, 0, 0, $month)) }} - {{ $year }}</span>
 </div>
 
-<table class="table table-striped mt-3">
+<table class="table table-striped mt-3" id="table_id">
   <thead>
     <tr>
       <th class="text-center" scope="col">Date</th>
@@ -34,6 +34,12 @@
 
 @section('extrascript')
 
-<!-- Extra Script -->
+<script type="text/javascript">
+   $(document).ready(function(){
+       $('#table_id').DataTable({
+         "lengthMenu": [[-1], ["All"]]
+       });
+   });
+ </script>
 
 @endsection
