@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Model\Product;
 use App\Model\Category;
+use App\Model\Stockout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,5 +44,31 @@ class GeneralController extends Controller
                 ->where('product_id', $product_id)
                 ->first();
         return ['product_name'=>$data->product_name, 'quantity'=>$data->quantity, 'price'=>$data->current_price];
+    }
+
+    public function addMoreDate(Request $request){
+        $date = $request->get('date');
+        $start_date = date('Y-m-d', strtotime($date . '-1 days'));
+        $end_date = date('Y-m-d', strtotime($date . '-1 months'));
+
+        $stockoutData = Stockout::select('date')
+                    ->whereBetween('date', [$end_date, $start_date])
+                    ->orderBy('date','desc')
+                    ->groupBy('date')
+                    ->get();
+
+        $output = '';
+        $url = 'admin.report.date.details';
+
+        // change the date format from Y-m-d to d-m-y. e.g - 2021-12-30 to 30-12-21
+        foreach($stockoutData as $key=>$dat){
+            $output .= '<p style="border: 1px solid gray; padding:5px 10px;">';
+            $output .= '<a href="' . route($url, $dat->date) . '">' . date("d-m-y", strtotime($dat->date)) . '</a>';
+            $output .= '</p>';
+        }
+        return [
+            'data' => $output,
+            'end_date' => $end_date,
+        ];
     }
 }
