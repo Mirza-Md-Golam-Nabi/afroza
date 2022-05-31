@@ -22,7 +22,7 @@
    <div id="dataShow" style="width: 100%;overflow-x:scroll;">
       <table class="table table-striped table-sm">
          <thead>
-         <tr> 
+         <tr>
              <th scope="col">প্রোডাক্ট নাম</th>
              @for($i = 0; $i < 12; $i++)
              <th scope="col" style="text-align: center;">{{ $monthList[$i] }}</th>
@@ -64,10 +64,10 @@
       <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#export">Export</button>
    </div>
    <div class="mt-2">
-      
+
       @foreach(SessionController::brandList() as $brandData)
    @if($brandData->brand_name != $brand)
-   <?php 
+   <?php
       $divHead = $brandData->brand_name;
       $url = 'admin.report.company';
       $param = ['name'=>$brandData->brand_name];
@@ -110,7 +110,7 @@
       $('#export').modal('hide');
    }
 
-   $(document).ready(function(){      
+   $(document).ready(function(){
       $('#yearValue').change(function(){
          var name = "{{$brand}}";
          var year = year_value = $('#yearValue').val();
@@ -120,13 +120,12 @@
             year_value = "Last 12 Month";
          }
          if(year != ''){
-            $.ajax({ 
+            $.ajax({
                url: "{{ route('admin.report.company') }}?name="+name+"&serial="+serial+"&year="+year,
                method: 'GET',
                success: function(data) {
                   $('#dataShow').html(data);
                   $('#year').html(year_value);
-                  // $('.data').attr("name");
                }
             });
          }
@@ -144,7 +143,7 @@
             year_value = "Last 12 Month";
          }
          if(data != ''){
-            $.ajax({ 
+            $.ajax({
                url: "{{ route('admin.report.ajax') }}?name="+name+"&data="+data+"&serial="+serial+"&year="+year,
                method: 'GET',
                success: function(data) {

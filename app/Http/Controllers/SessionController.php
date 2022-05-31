@@ -49,11 +49,27 @@ class SessionController extends Controller
         return date("d-m-Y", strtotime($date));
     }
 
-    public static function monthCalculation($iterate_value){
+    public static function forwardMonthCalculation($iterate_value){
+        return date("m",  strtotime( date( 'Y-m-01' )." +$iterate_value months"));
+    }
+
+    public static function backwardMonthCalculation($iterate_value){
         return date("m",  strtotime( date( 'Y-m-01' )." -$iterate_value months"));
     }
 
-    public static function yearCalculation($iterate_value){
+    public static function forwardMonthShortName($iterate_value){
+        return date("M", mktime(0, 0, 0, $iterate_value, 1));
+    }
+
+    public static function backwardMonthShortName($iterate_value){
+        return date("M",  strtotime( date( 'Y-m-01' )." -$iterate_value months"));
+    }
+
+    public static function backwardMonthFullName($iterate_value){
+        return date("F",  strtotime( date( 'Y-m-01' )." -$iterate_value months"));
+    }
+
+    public static function backwardYearCalculation($iterate_value){
         return date("Y",  strtotime( date( 'Y-m-01' )." -$iterate_value months"));
     }
 
@@ -73,7 +89,7 @@ class SessionController extends Controller
     public static function serialMonth(){
         $monthName = [];
         for($i = 1; $i <= 12; $i++){
-            array_push($monthName, date("M", mktime(0, 0, 0, $i)));
+            array_push($monthName, self::forwardMonthShortName($i));
         }
         return $monthName;
     }
@@ -81,7 +97,7 @@ class SessionController extends Controller
     public static function backwardMonth(){
         $monthName = [];
         for($i = 0; $i < 12; $i++){
-            array_push($monthName, date("M", strtotime("-".$i." month")));
+            array_push($monthName, self::backwardMonthShortName($i));
         }
         return $monthName;
     }
@@ -132,7 +148,7 @@ class SessionController extends Controller
         $totalStock = [];
         $currentMonth = date("m");
         for($i = 0; $i < 12; $i++){
-            $month = self::monthCalculation($i);
+            $month = self::backwardMonthCalculation($i);
             $year = $currentMonth >= $month ? date('Y') : date('Y') - 1;
 
             $data = self::dataFind($stock, $profit, $totalProfit, $totalStock, $brand_id, $month, $year, ($i+1));
@@ -353,17 +369,14 @@ class SessionController extends Controller
     }
 
     public static function last3Month(){
-        $currentMonth = date("m");
+        $monthName = [];
         $stockSummary = [];
         $profitSummary = [];
         $profit = [];
         for($i = 0; $i < 3; $i++){
-            $month = self::monthCalculation($i);
-            if($currentMonth >= $month){
-                $year = date('Y');
-            }else{
-                $year = date('Y') - 1;
-            }
+            $monthName[$i] = self::backwardMonthShortName($i);
+            $month = self::backwardMonthCalculation($i);
+            $year = self::backwardYearCalculation($i);
 
             $stockoutData = DB::table('stockout_history as a')
                         ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
@@ -429,7 +442,8 @@ class SessionController extends Controller
         $data = [
             'stockSummary' => $stockSummary,
             'profitSummary' => $profitSummary,
-            'profit' => $profit
+            'profit' => $profit,
+            'monthName' => $monthName,
         ];
 
         return $data;

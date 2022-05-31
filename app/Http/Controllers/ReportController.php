@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-
 use App\Model\Brand;
 use App\Model\Stock;
 use App\Model\Stockin;
 use App\Model\Stockout;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
@@ -173,11 +172,10 @@ class ReportController extends Controller
     }
 
     public function last3MonthReport(){
-        $title = "Last 3 Months Report";
-
         $data = SessionController::last3Month();
+        $data['title'] = "Last 3 Months Report";
 
-        return view('admin.report.stockLast3Month')->with(['title'=>$title, 'stockSummary'=>$data['stockSummary'], 'profit'=>$data['profit']]);
+        return view('admin.report.stockLast3Month')->with($data);
     }
 
     public function productList(){
@@ -189,29 +187,33 @@ class ReportController extends Controller
     }
 
     public function monthlyReport($product_id){
-        $title = "Monthly Report";
         $product = Stock::select('product_id', 'product_name', 'quantity')->where('product_id', $product_id)->first();
         $stockSummary = [];
         for($i = 0; $i < 12; $i++){
-            $month = SessionController::monthCalculation($i);
-            $year = SessionController::yearCalculation($i);
+            $month = SessionController::backwardMonthCalculation($i);
+            $year = SessionController::backwardYearCalculation($i);
 
-            $stockoutData = DB::table('stockout_history as a')
-                        ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                        ->select(DB::raw('SUM(a.quantity) AS stockout'))
-                        ->where('a.product_id', $product_id)
-                        ->where(DB::raw('MONTH(a.date)'), $month)
-                        ->where(DB::raw('YEAR(a.date)'), $year)
-                        ->groupBy('a.product_id')
-                        ->get();
+            $stockoutData = DB::table('stockout_history')
+                        ->where([
+                            ['product_id', '=', $product_id],
+                            [DB::raw('MONTH(date)'), '=', $month],
+                            [DB::raw('YEAR(date)'), '=', $year],
+                        ])
+                        ->sum('quantity');
 
-            $newArray = [];
-            $newArray['quantity'] = count($stockoutData) > 0 ? $stockoutData[0]->stockout : 0;
-            $newArray['month']    = date("F",  strtotime( date( 'Y-m-01' )." -$i months"));
-            array_push($stockSummary, $newArray);
+            array_push($stockSummary, [
+                'quantity' => $stockoutData,
+                'month'    => SessionController::backwardMonthFullName($i),
+            ]);
         }
 
-        return view('admin.report.stockMonth')->with(['title'=>$title, 'product'=>$product, 'stockSummary'=>$stockSummary]);
+        $data = [
+            'title' => 'Monthly Report',
+            'product'=> $product,
+            'stockSummary'=> $stockSummary,
+        ];
+
+        return view('admin.report.stockMonth')->with($data);
     }
 
     public function monthlyProfit(Request $request){
@@ -238,7 +240,7 @@ class ReportController extends Controller
         $serial_month = $request->get('serial');
         $company_name = $request->get('name');
         $has_year = $request->get('year');
-        $year = $request->get('year') ? $request->get('year') : $year = date('Y');
+        $year = $request->get('year') ?? date('Y');
 
         $brand = Brand::select('id', 'brand_name')->where('brand_name', $company_name)->first();
         $title = $brand->brand_name." Report";

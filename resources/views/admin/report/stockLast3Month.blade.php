@@ -6,11 +6,11 @@
 <div class="clearfix">
    <table class="table table-striped table-sm" id="table_id">
       <thead>
-         <tr> 
+         <tr>
             <th scope="col">প্রোডাক্ট নাম</th>
-            <th scope="col" style="text-align: center;">{{ date('M') }}</th>
-            <th scope="col" style="text-align: center;">{{ date('M', strtotime('-1 month')) }}</th>
-            <th scope="col" style="text-align: center;">{{ date('M', strtotime('-2 month')) }}</th>
+            <th scope="col" style="text-align: center;">{{ $monthName[0] }}</th>
+            <th scope="col" style="text-align: center;">{{ $monthName[1] }}</th>
+            <th scope="col" style="text-align: center;">{{ $monthName[2] }}</th>
          </tr>
       </thead>
       <tbody id="dataShow">
@@ -43,7 +43,7 @@
          /** name means 1=weekly / 2=monthly / 3=yearly */
          var name = 2;
          if(data != ''){
-            $.ajax({ 
+            $.ajax({
                url: "{{ route('admin.report.ajax') }}?name="+name+"&data="+data,
                method: 'GET',
                success: function(data) {
