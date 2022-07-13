@@ -231,7 +231,14 @@ class StockoutController extends Controller
         $url = "admin.stockout.list";
         $data = SessionController::stockDate('stockout_history');
 
-        return view('admin.stock.stockDate')->with(['title'=>$title, 'url'=>$url, 'data'=>$data]);
+        $all_data = [
+            'title' => $title,
+            'url'   => $url,
+            'data'  => $data,
+            'model' => 'App\\\Model\\\Stockout',
+        ];
+
+        return view('admin.stock.stockDate')->with($all_data);
     }
 
     public function stockCalculate($allProduct, $date){
