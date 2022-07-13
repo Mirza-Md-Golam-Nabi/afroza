@@ -48,27 +48,45 @@ class GeneralController extends Controller
 
     public function addMoreDate(Request $request){
         $date = $request->get('date');
-        $start_date = date('Y-m-d', strtotime($date . '-1 days'));
-        $end_date = date('Y-m-d', strtotime($date . '-1 months'));
+        $url = $request->get('url');
 
-        $stockoutData = Stockout::select('date')
-                    ->whereBetween('date', [$end_date, $start_date])
-                    ->orderBy('date','desc')
-                    ->groupBy('date')
-                    ->get();
+        $start_date = $this->startDate($date);
+        $end_date = $this->endDate($date);
 
+        $stockoutData = $this->addMoreDataTableWise('App\Model\Stockout', $end_date, $start_date);
+
+        $data = $this->dataFormat($stockoutData, $url);
+
+        return [
+            'data' => $data,
+            'end_date' => $end_date,
+        ];
+    }
+
+    public function startDate($date){
+        return date('Y-m-d', strtotime($date . '-1 days'));
+    }
+
+    public function endDate($date){
+        return date('Y-m-d', strtotime($date . '-1 months'));
+    }
+
+    public function dataFormat($data, $url){
         $output = '';
-        $url = 'admin.report.date.details';
-
         // change the date format from Y-m-d to d-m-y. e.g - 2021-12-30 to 30-12-21
-        foreach($stockoutData as $key=>$dat){
+        foreach($data as $key=>$dat){
             $output .= '<p style="border: 1px solid gray; padding:5px 10px;">';
             $output .= '<a href="' . route($url, $dat->date) . '">' . date("d-m-y", strtotime($dat->date)) . '</a>';
             $output .= '</p>';
         }
-        return [
-            'data' => $output,
-            'end_date' => $end_date,
-        ];
+        return $output;
+    }
+
+    public function addMoreDataTableWise($tableName, $end_date, $start_date){
+        return $tableName::select('date')
+            ->whereBetween('date', [$end_date, $start_date])
+            ->orderBy('date','desc')
+            ->groupBy('date')
+            ->get();
     }
 }
