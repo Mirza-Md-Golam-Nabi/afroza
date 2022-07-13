@@ -49,11 +49,12 @@ class GeneralController extends Controller
     public function addMoreDate(Request $request){
         $date = $request->get('date');
         $url = $request->get('url');
+        $model = $request->get('model');
 
         $start_date = $this->startDate($date);
         $end_date = $this->endDate($date);
 
-        $stockoutData = $this->addMoreDataTableWise('App\Model\Stockout', $end_date, $start_date);
+        $stockoutData = $this->addMoreDataTableWise($model, $end_date, $start_date);
 
         $data = $this->dataFormat($stockoutData, $url);
 

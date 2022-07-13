@@ -71,6 +71,7 @@ class ReportController extends Controller
             'title' => $title,
             'url'   => $url,
             'data'  => $data,
+            'model' => 'App\\\Model\\\Stockout',
         ];
         return view('admin.stock.stockDateArray')->with($all_data);
     }
