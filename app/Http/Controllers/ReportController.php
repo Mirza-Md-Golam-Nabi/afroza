@@ -73,7 +73,7 @@ class ReportController extends Controller
             'data'  => $data,
             'model' => 'App\\\Model\\\Stockout',
         ];
-        return view('admin.stock.stockDateArray')->with($all_data);
+        return view('admin.stock.stockDate')->with($all_data);
     }
 
     public function totalDailyProfit(Request $request){
