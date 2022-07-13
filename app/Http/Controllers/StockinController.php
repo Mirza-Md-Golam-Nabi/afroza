@@ -238,6 +238,13 @@ class StockinController extends Controller
         $url = "admin.stockin.list.all";
         $data = SessionController::stockDate('stockin_history');
 
-        return view('admin.stock.stockDate')->with(['title'=>$title, 'url'=>$url, 'data'=>$data]);
+        $all_data = [
+            'title' => $title,
+            'url'   => $url,
+            'data'  => $data,
+            'model' => 'App\\\Model\\\Stockin',
+        ];
+
+        return view('admin.stock.stockDate')->with($all_data);
     }
 }
