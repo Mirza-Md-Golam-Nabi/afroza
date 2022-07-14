@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Model\Type;
+use App\model\Stock;
 use App\Model\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Model\ProductPrice;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -51,7 +53,22 @@ class AdminController extends Controller
             'chartData' => $barChartData
         ];
 
-        return view('admin.index')->with(['title'=>$title, 'profit'=>$profit, 'data'=>$data]);
+        $stock = new Stock;
+        $stock_price = $stock->productPriceSum();
+
+        $product = new ProductPrice;
+        $product_price = $product->productPriceSum();
+
+        $total_stock_price = $stock_price + $product_price;
+
+        $all_data = [
+            'title'  => $title,
+            'profit' => $profit,
+            'data'   => $data,
+            'total_stock_price' => $total_stock_price,
+        ];
+
+        return view('admin.index')->with($all_data);
     }
 
     public function barChart(){

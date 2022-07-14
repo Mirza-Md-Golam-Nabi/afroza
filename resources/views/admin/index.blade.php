@@ -10,6 +10,11 @@
       grid-template-columns: 1fr 1fr 1fr;
       grid-gap: 5px;
    }
+   .contain-2{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 5px;
+   }
 </style>
 
 <div>
@@ -23,6 +28,17 @@
         </div>
       @endfor
    </div>
+</div>
+<hr>
+
+<div>
+    <div class="contain-2">
+        <div style="text-align: center;">
+            Total Product Price
+            <br>
+            {{ number_format($total_stock_price, 1) }}
+        </div>
+    </div>
 </div>
 <hr>
 <div class="d-flex align-items-stretch flex-wrap">
