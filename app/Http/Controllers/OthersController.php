@@ -39,12 +39,12 @@ class OthersController extends Controller
                     'quantity' => $currentStock->applicable_stock,
                     'profit' => $value->sell_price - $value->price,
                 ];
-                $newArray = [];
-                $newArray['product_id']     = $value->product_id;
-                $newArray['product_name']   = $value->product_name;
-                $newArray['current']        = $insertArray;
-                $newArray['upcoming']       = [];
-                array_push($stockSummary, $newArray);
+                array_push($stockSummary, [
+                    'product_id'     => $value->product_id,
+                    'product_name'   => $value->product_name,
+                    'current'        => $insertArray,
+                    'upcoming'       => [],
+                ]);
             }
         }
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Model\Stock;
-
 use App\Model\Stockin;
 use App\Model\Stockout;
 use App\Model\ProductPrice;
@@ -14,8 +13,9 @@ use Illuminate\Support\Facades\Auth;
 
 class StockController extends Controller
 {
+    private $helper;
     public function __construct(){
-        $help = new HelperController;
+        $this->helper = new HelperController;
         $this->middleware(function ($request, $next) {
             if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
                 Auth::logout();
@@ -37,59 +37,42 @@ class StockController extends Controller
 
     public function stockCurrent(){
         $title = "Current Stock";
-        $stockList = DB::table('stock')
-                   ->select('product_id','product_name', 'quantity', 'current_price')
-                   ->where('status', 1)
-                   ->orderBy('product_name', 'asc')
-                   ->get();
+        $stock = new Stock();
+        $stockList = $stock->currentAll();
 
-        return view('admin.report.current')->with(['title'=>$title,'stockList'=>$stockList]);
+        $all_data = [
+            'title'     => $title,
+            'stockList' => $stockList,
+        ];
+
+        return view('admin.report.current')->with($all_data);
     }
 
     public function stockHistory($product_id){
         $title = "Stock History";
-        $product = Stock::where('product_id', $product_id)->first();
-        $stockinData = Stockin::select(
-                        'date',
-                        DB::raw('SUM(quantity) AS stockin')
-                    )
-                    ->where('product_id', $product_id)
-                    ->orderBy('date','desc')
-                    ->groupBy('date')
-                    ->get();
 
-        $stockoutData = Stockout::select(
-                        'date',
-                        DB::raw('SUM(quantity) AS stockout'),
-                        DB::raw('SUM(buying_price) AS buy'),
-                        DB::raw('SUM(selling_price) AS sell')
-                    )
-                    ->where('product_id', $product_id)
-                    ->orderBy('date','desc')
-                    ->groupBy('date')
-                    ->get();
+        $stock = new Stock();
+        $product = $stock->currentProduct($product_id);
 
-        $inLast  = DB::table('stockin_history')->select('updated_at')->where('product_id', $product_id)->orderBy('id','desc')->first();
-        $outLast = DB::table('stockout_history')->select('updated_at')->where('product_id', $product_id)->orderBy('id','desc')->first();
+        $stockin = new Stockin();
+        $stockinData = $stockin->singleProduct($product_id);
 
-        if($inLast && $outLast){
-            $lastUpdate = $inLast->updated_at > $outLast->updated_at ? $inLast->updated_at : $outLast->updated_at;
-        }elseif($inLast){
-            $lastUpdate = $inLast->updated_at;
-        }elseif($outLast){
-            $lastUpdate = $outLast->updated_at;
-        }else{
-            $lastUpdate = NULL;
-        }
+        $stockout = new Stockout();
+        $stockoutData = $stockout->singleProduct($product_id);
+
+        $inLast  = $stockin->updateTimeForProduct($product_id);
+        $outLast = $stockout->updateTimeForProduct($product_id);
+
+        $lastUpdate = $this->helper->lastUpdate($inLast, $outLast);
 
         $stockSummary = [];
         foreach($stockinData as $key => $value){
-            $newArray = [];
-            $newArray['date']      = $value->date;
-            $newArray['stockin']   = number_format($value->stockin);
-            $newArray['stockout']  = 0;
-            $newArray['profit']    = 0;
-            array_push($stockSummary, $newArray);
+            array_push($stockSummary, [
+                'date'      => $value->date,
+                'stockin'   => number_format($value->stockin),
+                'stockout'  => 0,
+                'profit'    => 0,
+            ]);
         }
 
         foreach ($stockoutData as $key => $value) {
@@ -99,21 +82,20 @@ class StockController extends Controller
                 $stockSummary[$newarray[0]]['stockout'] = number_format($value->stockout);
                 $stockSummary[$newarray[0]]['profit']   = number_format(($value->sell - $value->buy), 1);
             }else{
-                $newArray['date']     = $value->date;
-                $newArray['stockin']  = 0;
-                $newArray['stockout'] = number_format($value->stockout);
-                $newArray['profit']   = number_format(($value->sell - $value->buy), 1);
-                array_push($stockSummary, $newArray);
+                array_push($stockSummary, [
+                    'date'     => $value->date,
+                    'stockin'  => 0,
+                    'stockout' => number_format($value->stockout),
+                    'profit'   => number_format(($value->sell - $value->buy), 1),
+                ]);
             }
         }
 
-        usort($stockSummary, function ($object1, $object2) {
-            return $object1['date'] < $object2['date'];
-        });
+        // date sorting from new to old
+        $dateSorting = $this->helper->dateSorting($stockSummary);
 
-        foreach($stockSummary as $key=>$stock){
-            $stockSummary[$key]['date'] = SessionController::date_reverse_short($stock['date']);
-        }
+        // date format : d-m-y i.e 30-12-22
+        $stockSummary = $this->helper->dateFormatting($dateSorting);
 
         $all_data = [
             'title'         => $title,
@@ -145,13 +127,12 @@ class StockController extends Controller
         $price      = $request->price;
 
         $allData = [];
-        $newArray = [];
         for($i = 0; $i < count($product_id); $i++){
-            $newArray['product_id'] = $product_id[$i];
-            $newArray['quantity']   = $quantity[$i];
-            $newArray['price']      = $price[$i];
-
-            array_push($allData, $newArray);
+            array_push($allData, [
+                'product_id' => $product_id[$i],
+                'quantity'   => $quantity[$i],
+                'price'      => $price[$i],
+            ]);
         }
 
         try{

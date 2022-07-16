@@ -50,11 +50,11 @@ class StockoutController extends Controller
 
         $stockData = [];
         for($i = 0; $i < count($product_id); $i++){
-            $newArray = [];
-            $newArray['product_id'] = $product_id[$i];
-            $newArray['quantity']   = $quantity[$i];
-            $newArray['price']      = $price[$i];
-            array_push($stockData, $newArray);
+            array_push($stockData, [
+                'product_id' => $product_id[$i],
+                'quantity'   => $quantity[$i],
+                'price'      => $price[$i],
+            ]);
         }
 
         try{
@@ -129,14 +129,14 @@ class StockoutController extends Controller
         $quantity      = $request->quantity;
         $price         = $request->price;
 
-        $newArray = [];
         $allProduct = [];
         if(isset($product_id) && count($product_id) > 0){
             for($i = 0; $i < count($product_id); $i++){
-                $newArray['product_id'] = $product_id[$i];
-                $newArray['quantity']   = $quantity[$i];
-                $newArray['price']      = $price[$i];
-                array_push($allProduct, $newArray);
+                array_push($allProduct, [
+                    'product_id' => $product_id[$i],
+                    'quantity'   => $quantity[$i],
+                    'price'      => $price[$i],
+                ]);
             }
         }else{
             session()->flash('error','Stock does not Update successfully.');

@@ -130,13 +130,13 @@ class ReportController extends Controller
 
         $stockSummary = [];
         foreach($stockinData as $key => $value){
-            $newArray = [];
-            $newArray['product_id']     = $value->product_id;
-            $newArray['product_name']   = $value->product_name;
-            $newArray['stockin']        = number_format($value->stockin);
-            $newArray['stockout']       = 0;
-            $newArray['profit']         = 0;
-            array_push($stockSummary, $newArray);
+            array_push($stockSummary, [
+                'product_id'   => $value->product_id,
+                'product_name' => $value->product_name,
+                'stockin'      => number_format($value->stockin),
+                'stockout'     => 0,
+                'profit'       => 0,
+            ]);
         }
 
         foreach ($stockoutData as $key => $value) {
@@ -147,13 +147,13 @@ class ReportController extends Controller
                 $stockSummary[$newarray[0]]['profit']   = number_format($value->sell - $value->buy);
                 $profit += $value->sell - $value->buy;
             }else{
-                $newArray = [];
-                $newArray['product_id']     = $value->product_id;
-                $newArray['product_name']   = $value->product_name;
-                $newArray['stockin']        = 0;
-                $newArray['stockout']       = number_format($value->stockout);
-                $newArray['profit']         = number_format($value->sell - $value->buy);
-                array_push($stockSummary, $newArray);
+                array_push($stockSummary, [
+                    'product_id'   => $value->product_id,
+                    'product_name' => $value->product_name,
+                    'stockin'      => 0,
+                    'stockout'     => number_format($value->stockout),
+                    'profit'       => number_format($value->sell - $value->buy),
+                ]);
                 $profit += $value->sell - $value->buy;
             }
         }

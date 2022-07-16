@@ -29,8 +29,15 @@ class StockinController extends Controller
 
     public function stockinCreate(){
         $title = "Stock In";
-        $productList = Product::where('status', 1)->orderBy('product_name', 'asc')->get();
-        return view('admin.stock.stockin.create')->with(['title'=>$title, 'productList'=>$productList]);
+        $product = new Product();
+        $productList = $product->activeAll();
+
+        $all_data = [
+            'title'       => $title,
+            'productList' => $productList,
+        ];
+
+        return view('admin.stock.stockin.create')->with($all_data);
     }
 
     public function stockinStore(Request $request){
@@ -50,11 +57,11 @@ class StockinController extends Controller
 
         $stockData = [];
         for($i = 0; $i < count($product_id); $i++){
-            $newArray = [];
-            $newArray['product_id'] = $product_id[$i];
-            $newArray['quantity']   = $quantity[$i];
-            $newArray['price']      = $price[$i];
-            array_push($stockData, $newArray);
+            array_push($stockData, [
+                'product_id' => $product_id[$i],
+                'quantity'   => $quantity[$i],
+                'price'      => $price[$i],
+            ]);
         }
 
         try{
@@ -70,10 +77,10 @@ class StockinController extends Controller
                 $stockin->updated_by    = Auth::user()->id;
                 $stockin->save();
 
-                $productPriceCheck = DB::table('product_price')->where('product_id', $stock['product_id'])->where('status', 1)->first();
+                $productPrice = new ProductPrice();
 
                 $productPriceStatus = 1;
-                if($productPriceCheck){
+                if($productPrice->productHas($stock['product_id'])){
                     $productPriceStatus = 0;
 
                     $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity + '.$stock["quantity"]), 'updated_by'=>Auth::user()->id]);
@@ -106,6 +113,7 @@ class StockinController extends Controller
 
     public function stockinList($date){
         $title = "Stock-in History by Group";
+        $stockin = new Stockin();
         $dataList = DB::table('stockin_history as a')
                 ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
                 ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), DB::raw('SUM(a.buying_price) as price'), 'b.product_name')
@@ -114,14 +122,22 @@ class StockinController extends Controller
                 ->orderBy('b.product_name', 'asc')
                 ->get();
 
-        $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        $inLast  = $stockin->updateTimeForAll($date);
         $lastUpdate = $inLast->updated_at;
 
-        return view('admin.stock.stockin.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date, 'lastUpdate'=>$lastUpdate]);
+        $all_data = [
+            'title'      => $title,
+            'dataList'   => $dataList,
+            'date'       => $date,
+            'lastUpdate' => $lastUpdate,
+        ];
+
+        return view('admin.stock.stockin.list')->with($all_data);
     }
 
     public function stockinListAll($date){
         $title = "Stock-in History by All";
+        $stockin = new Stockin();
         $dataList = DB::table('stockin_history as a')
                 ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
                 ->select('a.product_id', 'a.quantity', 'a.buying_price as price', 'b.product_name')
@@ -129,17 +145,35 @@ class StockinController extends Controller
                 ->orderBy('b.product_name', 'asc')
                 ->get();
 
-        $inLast  = DB::table('stockin_history')->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+        $inLast  = $stockin->updateTimeForAll($date);
         $lastUpdate = $inLast->updated_at;
 
-        return view('admin.stock.stockin.list')->with(['title'=>$title,'dataList'=>$dataList, 'date'=>$date, 'lastUpdate'=>$lastUpdate]);
+        $all_data = [
+            'title'      => $title,
+            'dataList'   => $dataList,
+            'date'       => $date,
+            'lastUpdate' => $lastUpdate,
+        ];
+
+        return view('admin.stock.stockin.list')->with($all_data);
     }
 
     public function stockinEdit($date, $product_id){
         $title = "Stock In Edit";
         $stockinList = Stockin::where('date', $date)->where('product_id', $product_id)->get();
-        $productList = Product::where('status', 1)->orderBy('product_name', 'asc')->get();
-        return view('admin.stock.stockin.edit')->with(['title'=>$title, 'stockinList'=>$stockinList,'productList'=>$productList, 'date'=>$date, 'productId'=>$product_id]);
+
+        $product = new Product();
+        $productList = $product->activeAll();
+
+        $all_data = [
+            'title'         => $title,
+            'stockinList'   => $stockinList,
+            'productList'   => $productList,
+            'date'          => $date,
+            'productId'     => $product_id,
+        ];
+
+        return view('admin.stock.stockin.edit')->with($all_data);
     }
 
     public function stockinUpdate(Request $request){
@@ -161,14 +195,14 @@ class StockinController extends Controller
             $invoice = "N/A";
         }
 
-        $newArray = [];
         $allProduct = [];
         if(isset($product_id) && count($product_id) > 0){
             for($i = 0; $i < count($product_id); $i++){
-                $newArray['productId']  = $product_id[$i];
-                $newArray['quantity']   = $quantity[$i];
-                $newArray['price']      = $price[$i];
-                array_push($allProduct, $newArray);
+                array_push($allProduct, [
+                    'productId'  => $product_id[$i],
+                    'quantity'   => $quantity[$i],
+                    'price'      => $price[$i],
+                ]);
             }
         }else{
             session()->flash('error','Stock does not Update successfully.');

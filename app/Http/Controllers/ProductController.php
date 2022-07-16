@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Model\Brand;
-use App\Model\Category;
-use App\Model\Product;
-use App\Model\Stock;
+use Exception;
 use App\Model\Type;
-use Auth;
-use DB;
-use Image;
-use File;
+use App\Model\Brand;
+use App\Model\Stock;
+use App\Model\Product;
+use App\Model\Category;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -62,17 +60,17 @@ class ProductController extends Controller
         $othersUnit = [];
         if($others_unit_value[0]){
             for($i=0; $i < count($others_unit_value); $i++){
-                $newArray = [];
-                $newArray['unit_value'] = $others_unit_value[$i];
-                $newArray['unit_name'] = $others_unit_name[$i];
-                array_push($othersUnit, $newArray);
+                array_push($othersUnit, [
+                    'unit_value' => $others_unit_value[$i],
+                    'unit_name'  => $others_unit_name[$i],
+                ]);
             }
         }
 
-        $newArray = [];
-        $newArray['unit_value'] = 1;
-        $newArray['unit_name'] = $main_unit;
-        array_push($othersUnit, $newArray);
+        array_push($othersUnit, [
+            'unit_value' => 1,
+            'unit_name'  => $main_unit,
+        ]);
 
         $othersUnit = json_encode($othersUnit);
 
@@ -172,16 +170,17 @@ class ProductController extends Controller
         $othersUnit = [];
         if(isset($others_unit_name) && count($others_unit_value) > 0){
             for($i=0; $i < count($others_unit_value); $i++){
-                $newArray = [];
-                $newArray['unit_value'] = $others_unit_value[$i];
-                $newArray['unit_name'] = $others_unit_name[$i];
-                array_push($othersUnit, $newArray);
+                array_push($othersUnit, [
+                    'unit_value' => $others_unit_value[$i],
+                    'unit_name'  => $others_unit_name[$i],
+                ]);
             }
         }
-        $newArray = [];
-        $newArray['unit_value'] = 1;
-        $newArray['unit_name'] = $main_unit;
-        array_push($othersUnit, $newArray);
+
+        array_push($othersUnit, [
+            'unit_value' => 1,
+            'unit_name'  => $main_unit,
+        ]);
 
         $othersUnit = json_encode($othersUnit);
 

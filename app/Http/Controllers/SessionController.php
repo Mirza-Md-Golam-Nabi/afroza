@@ -2,17 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use App\User;
-use App\Model\Type;
-
 use App\Model\Brand;
-use App\Model\Product;
-use App\Model\Category;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class SessionController extends Controller
 {
@@ -188,23 +179,22 @@ class SessionController extends Controller
                 $newarray = array_keys($resultArr);
                 $stock[$newarray[0]][$i] = $value->stockout;
             }else{
-                $newArray = [];
-                $newArray['product_id']    = $value->product_id;
-                $newArray['product_name']  = $value->product_name;
-                $newArray['1']        = $i == 1 ? $value->stockout : 0;
-                $newArray['2']        = $i == 2 ? $value->stockout : 0;
-                $newArray['3']        = $i == 3 ? $value->stockout : 0;
-                $newArray['4']        = $i == 4 ? $value->stockout : 0;
-                $newArray['5']        = $i == 5 ? $value->stockout : 0;
-                $newArray['6']        = $i == 6 ? $value->stockout : 0;
-                $newArray['7']        = $i == 7 ? $value->stockout : 0;
-                $newArray['8']        = $i == 8 ? $value->stockout : 0;
-                $newArray['9']        = $i == 9 ? $value->stockout : 0;
-                $newArray['10']       = $i == 10 ? $value->stockout : 0;
-                $newArray['11']       = $i == 11 ? $value->stockout : 0;
-                $newArray['12']       = $i == 12 ? $value->stockout : 0;
-
-                array_push($stock, $newArray);
+                array_push($stock, [
+                    'product_id'    => $value->product_id,
+                    'product_name'  => $value->product_name,
+                    '1'             => $i == 1 ? $value->stockout : 0,
+                    '2'             => $i == 2 ? $value->stockout : 0,
+                    '3'             => $i == 3 ? $value->stockout : 0,
+                    '4'             => $i == 4 ? $value->stockout : 0,
+                    '5'             => $i == 5 ? $value->stockout : 0,
+                    '6'             => $i == 6 ? $value->stockout : 0,
+                    '7'             => $i == 7 ? $value->stockout : 0,
+                    '8'             => $i == 8 ? $value->stockout : 0,
+                    '9'             => $i == 9 ? $value->stockout : 0,
+                    '10'            => $i == 10 ? $value->stockout : 0,
+                    '11'            => $i == 11 ? $value->stockout : 0,
+                    '12'            => $i == 12 ? $value->stockout : 0,
+                ]);
             }
 
             if(SessionController::filterByDow($profit, $value->product_id)){
@@ -212,23 +202,22 @@ class SessionController extends Controller
                 $newarray = array_keys($resultArr);
                 $profit[$newarray[0]][$i] = $value->sell - $value->buy;
             }else{
-                $newArray = [];
-                $newArray['product_id']    = $value->product_id;
-                $newArray['product_name']  = $value->product_name;
-                $newArray['1']        = $i == 1 ? ($value->sell - $value->buy) : 0;
-                $newArray['2']        = $i == 2 ? ($value->sell - $value->buy) : 0;
-                $newArray['3']        = $i == 3 ? ($value->sell - $value->buy) : 0;
-                $newArray['4']        = $i == 4 ? ($value->sell - $value->buy) : 0;
-                $newArray['5']        = $i == 5 ? ($value->sell - $value->buy) : 0;
-                $newArray['6']        = $i == 6 ? ($value->sell - $value->buy) : 0;
-                $newArray['7']        = $i == 7 ? ($value->sell - $value->buy) : 0;
-                $newArray['8']        = $i == 8 ? ($value->sell - $value->buy) : 0;
-                $newArray['9']        = $i == 9 ? ($value->sell - $value->buy) : 0;
-                $newArray['10']       = $i == 10 ? ($value->sell - $value->buy) : 0;
-                $newArray['11']       = $i == 11 ? ($value->sell - $value->buy) : 0;
-                $newArray['12']       = $i == 12 ? ($value->sell - $value->buy) : 0;
-
-                array_push($profit, $newArray);
+                array_push($profit, [
+                    'product_id'    => $value->product_id,
+                    'product_name'  => $value->product_name,
+                    '1'             => $i == 1 ? ($value->sell - $value->buy) : 0,
+                    '2'             => $i == 2 ? ($value->sell - $value->buy) : 0,
+                    '3'             => $i == 3 ? ($value->sell - $value->buy) : 0,
+                    '4'             => $i == 4 ? ($value->sell - $value->buy) : 0,
+                    '5'             => $i == 5 ? ($value->sell - $value->buy) : 0,
+                    '6'             => $i == 6 ? ($value->sell - $value->buy) : 0,
+                    '7'             => $i == 7 ? ($value->sell - $value->buy) : 0,
+                    '8'             => $i == 8 ? ($value->sell - $value->buy) : 0,
+                    '9'             => $i == 9 ? ($value->sell - $value->buy) : 0,
+                    '10'            => $i == 10 ? ($value->sell - $value->buy) : 0,
+                    '11'            => $i == 11 ? ($value->sell - $value->buy) : 0,
+                    '12'            => $i == 12 ? ($value->sell - $value->buy) : 0,
+                ]);
             }
         }
 
@@ -316,14 +305,14 @@ class SessionController extends Controller
                         $stockSummary[$newarray[0]]['prev3'] = $value->stockout;
                     }
                 }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['current']        = $i == 0 ? $value->stockout : 0;
-                    $newArray['prev1']          = $i == 1 ? $value->stockout : 0;
-                    $newArray['prev2']          = $i == 2 ? $value->stockout : 0;
-                    $newArray['prev3']          = $i == 3 ? $value->stockout : 0;
-                    array_push($stockSummary, $newArray);
+                    array_push($stockSummary, [
+                        'product_id'   => $value->product_id,
+                        'product_name' => $value->product_name,
+                        'current'      => $i == 0 ? $value->stockout : 0,
+                        'prev1'        => $i == 1 ? $value->stockout : 0,
+                        'prev2'        => $i == 2 ? $value->stockout : 0,
+                        'prev3'        => $i == 3 ? $value->stockout : 0,
+                    ]);
                 }
 
                 if(SessionController::filterByDow($profitSummary,$value->product_id)){
@@ -339,14 +328,14 @@ class SessionController extends Controller
                         $profitSummary[$newarray[0]]['profit3'] = $value->sell - $value->buy;
                     }
                 }else{
-                    $newArray = [];
-                    $newArray['product_id']   = $value->product_id;
-                    $newArray['product_name'] = $value->product_name;
-                    $newArray['profit0']      = $i == 0 ? ($value->sell - $value->buy) : 0;
-                    $newArray['profit1']      = $i == 1 ? ($value->sell - $value->buy) : 0;
-                    $newArray['profit2']      = $i == 2 ? ($value->sell - $value->buy) : 0;
-                    $newArray['profit3']      = $i == 3 ? ($value->sell - $value->buy) : 0;
-                    array_push($profitSummary, $newArray);
+                    array_push($profitSummary, [
+                        'product_id'   => $value->product_id,
+                        'product_name' => $value->product_name,
+                        'profit0'      => $i == 0 ? ($value->sell - $value->buy) : 0,
+                        'profit1'      => $i == 1 ? ($value->sell - $value->buy) : 0,
+                        'profit2'      => $i == 2 ? ($value->sell - $value->buy) : 0,
+                        'profit3'      => $i == 3 ? ($value->sell - $value->buy) : 0,
+                    ]);
                 }
             }
         }
@@ -400,13 +389,13 @@ class SessionController extends Controller
                         $stockSummary[$newarray[0]]['prev2_out'] = $value->stockout;
                     }
                 }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['current_out']    = $i == 0 ? $value->stockout : 0;
-                    $newArray['prev1_out']      = $i == 1 ? $value->stockout : 0;
-                    $newArray['prev2_out']      = $i == 2 ? $value->stockout : 0;
-                    array_push($stockSummary, $newArray);
+                    array_push($stockSummary, [
+                        'product_id'     => $value->product_id,
+                        'product_name'   => $value->product_name,
+                        'current_out'    => $i == 0 ? $value->stockout : 0,
+                        'prev1_out'      => $i == 1 ? $value->stockout : 0,
+                        'prev2_out'      => $i == 2 ? $value->stockout : 0,
+                    ]);
                 }
 
                 if(SessionController::filterByDow($profitSummary,$value->product_id)){
@@ -420,13 +409,13 @@ class SessionController extends Controller
                         $profitSummary[$newarray[0]]['profit2'] = $value->sell - $value->buy;
                     }
                 }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['profit0']        = $i == 0 ? ($value->sell - $value->buy) : 0;
-                    $newArray['profit1']        = $i == 1 ? ($value->sell - $value->buy) : 0;
-                    $newArray['profit2']        = $i == 2 ? ($value->sell - $value->buy) : 0;
-                    array_push($profitSummary, $newArray);
+                    array_push($profitSummary, [
+                        'product_id'     => $value->product_id,
+                        'product_name'   => $value->product_name,
+                        'profit0'        => $i == 0 ? ($value->sell - $value->buy) : 0,
+                        'profit1'        => $i == 1 ? ($value->sell - $value->buy) : 0,
+                        'profit2'        => $i == 2 ? ($value->sell - $value->buy) : 0,
+                    ]);
                 }
             }
         }
@@ -478,13 +467,13 @@ class SessionController extends Controller
                         $stockSummary[$newarray[0]]['prev2_out'] = $value->stockout;
                     }
                 }else{
-                    $newArray = [];
-                    $newArray['product_id']     = $value->product_id;
-                    $newArray['product_name']   = $value->product_name;
-                    $newArray['current_out']    = $i == 0 ? $value->stockout : 0;
-                    $newArray['prev1_out']      = $i == 1 ? $value->stockout : 0;
-                    $newArray['prev2_out']      = $i == 2 ? $value->stockout : 0;
-                    array_push($stockSummary, $newArray);
+                    array_push($stockSummary, [
+                        'product_id'     => $value->product_id,
+                        'product_name'   => $value->product_name,
+                        'current_out'    => $i == 0 ? $value->stockout : 0,
+                        'prev1_out'      => $i == 1 ? $value->stockout : 0,
+                        'prev2_out'      => $i == 2 ? $value->stockout : 0,
+                    ]);
                 }
 
                 if(SessionController::filterByDow($profitSummary,$value->product_id)){
