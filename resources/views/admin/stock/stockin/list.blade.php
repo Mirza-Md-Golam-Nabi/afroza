@@ -34,8 +34,8 @@
          @php $i++; @endphp
          <tr>
             <td style="cursor: pointer;">{{ $list->product_name }}</td>
-            <td style="text-align: center;">{{ $list->quantity }}</td>
-            <td style="text-align: right;">{{ $list->price }}</td>
+            <td style="text-align: center;">{{ number_format($list->quantity) }}</td>
+            <td style="text-align: right;">{{ number_format($list->price) }}</td>
             <td style="text-align: center;"><a href="{{ route('admin.stockin.edit', [$date, $list->product_id]) }}" class="text-primary">Edit</a></td>
          </tr>
             @php $total_quantity += $list->quantity; @endphp

@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Model\Type;
-use App\model\Stock;
-use App\Model\Category;
-use Illuminate\Http\Request;
+use App\Model\Stock;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Model\ProductPrice;

@@ -4,7 +4,7 @@
 body{
    font-family: 'Poppins', sans-serif;
    background: #eee;
-   font-size: 1.1rem;   
+   font-size: 1.1rem;
 }
 p{
    font-family: 'Poppins', sans-serif;
@@ -42,7 +42,7 @@ a:focus{
    height: 70px;
    width: 100%;
    position: sticky;
-   top: 0%; 
+   top: 0%;
    left: 0%;
    background-color: #7386D5;
    color: #fff;
@@ -99,7 +99,7 @@ a:focus{
    color: #7386D5;
    background: #fff;
 }
-#sidebar ul li.active>a, 
+#sidebar ul li.active>a,
 a[aria-expanded="true"]{
    color: #fff;
    background: #6d7fcc;
@@ -129,6 +129,9 @@ ul ul a{
 }
 
 @media (max-width: 992px){
+    .contain>div, .contain-2>div{
+        font-size: 12px;
+    }
    table tr th, table tr td, table tr td a, table tr td b{
       font-size: 14px;
    }

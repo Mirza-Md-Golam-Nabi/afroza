@@ -133,7 +133,7 @@ class ReportController extends Controller
             $newArray = [];
             $newArray['product_id']     = $value->product_id;
             $newArray['product_name']   = $value->product_name;
-            $newArray['stockin']        = $value->stockin;
+            $newArray['stockin']        = number_format($value->stockin);
             $newArray['stockout']       = 0;
             $newArray['profit']         = 0;
             array_push($stockSummary, $newArray);
@@ -143,16 +143,16 @@ class ReportController extends Controller
             if(SessionController::filterByDow($stockSummary,$value->product_id)){
                 $resultArr = SessionController::filterByDow($stockSummary,$value->product_id);
                 $newarray = array_keys($resultArr);
-                $stockSummary[$newarray[0]]['stockout'] = $value->stockout;
-                $stockSummary[$newarray[0]]['profit']   = $value->sell - $value->buy;
+                $stockSummary[$newarray[0]]['stockout'] = number_format($value->stockout);
+                $stockSummary[$newarray[0]]['profit']   = number_format($value->sell - $value->buy);
                 $profit += $value->sell - $value->buy;
             }else{
                 $newArray = [];
                 $newArray['product_id']     = $value->product_id;
                 $newArray['product_name']   = $value->product_name;
                 $newArray['stockin']        = 0;
-                $newArray['stockout']       = $value->stockout;
-                $newArray['profit']         = $value->sell - $value->buy;
+                $newArray['stockout']       = number_format($value->stockout);
+                $newArray['profit']         = number_format($value->sell - $value->buy);
                 array_push($stockSummary, $newArray);
                 $profit += $value->sell - $value->buy;
             }
@@ -162,7 +162,15 @@ class ReportController extends Controller
             return $object1['product_name'] > $object2['product_name'];
         });
 
-        return view('admin.report.stockDate')->with(['title'=>$title, 'date'=>$date, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate, 'profit'=>$profit]);
+        $all_data = [
+            'title'         => $title,
+            'date'          => $date,
+            'stockSummary'  => $stockSummary,
+            'lastUpdate'    => $lastUpdate,
+            'profit'        => $profit,
+        ];
+
+        return view('admin.report.stockDate')->with($all_data);
     }
 
     public function weeklyReport(){

@@ -3,7 +3,7 @@
 
 <div class="d-flex justify-content-between">
    <p style="margin: 0;">Product: <span style="font-weight: bold;">{{ $product->product_name }}</span></p>
-   <p style="margin: 0;">Stock: <span style="font-weight:bold;">{{ $product->quantity." ".$product->unit }}</span></p>
+   <p style="margin: 0;">Stock: <span style="font-weight:bold;">{{ number_format($product->quantity) . " " . $product->unit }}</span></p>
 </div>
 <div class="d-flex justify-content-between" style="margin-bottom: 1rem">
    <small>Update: {{ date("d-m-y H:i:s", strtotime($lastUpdate)) }}</small>
@@ -22,15 +22,15 @@
       </tr>
       </thead>
       <tbody>
-        @php $i=1; $sum=$product->quantity; @endphp
+        @php $i = 1; $sum = number_format($product->quantity); @endphp
         @foreach($stockSummary AS $stock)
          <tr>
-            <td style="text-align: center;">{{ SessionController::date_reverse_short($stock['date']) }}</td>
+            <td style="text-align: center;">{{ $stock['date'] }}</td>
             <td style="text-align: center;@if($stock['stockin'] > 0) color:#f00; font-weight:bold; @endif">{{ $stock['stockin'] }}</td>
             <td style="text-align: center;">{{ $sum + $stock['stockout'] }}</td>
             <td style="text-align: center;">{{ $stock['stockout'] }}</td>
             <td style="text-align: center;">{{ $sum }}</td>
-            <td style="text-align: right;">{{ number_format($stock['profit'], 1) }}</td>
+            <td style="text-align: right;">{{ $stock['profit'] }}</td>
             @php $sum = $sum - $stock['stockin'] + $stock['stockout']; @endphp
          </tr>
         @endforeach

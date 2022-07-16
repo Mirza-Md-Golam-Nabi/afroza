@@ -86,7 +86,7 @@ class StockController extends Controller
         foreach($stockinData as $key => $value){
             $newArray = [];
             $newArray['date']      = $value->date;
-            $newArray['stockin']   = $value->stockin;
+            $newArray['stockin']   = number_format($value->stockin);
             $newArray['stockout']  = 0;
             $newArray['profit']    = 0;
             array_push($stockSummary, $newArray);
@@ -96,13 +96,13 @@ class StockController extends Controller
             if($this->filterByDow($stockSummary,$value->date)){
                 $resultArr = $this->filterByDow($stockSummary,$value->date);
                 $newarray = array_keys($resultArr);
-                $stockSummary[$newarray[0]]['stockout'] = $value->stockout;
-                $stockSummary[$newarray[0]]['profit']   = $value->sell - $value->buy;
+                $stockSummary[$newarray[0]]['stockout'] = number_format($value->stockout);
+                $stockSummary[$newarray[0]]['profit']   = number_format(($value->sell - $value->buy), 1);
             }else{
                 $newArray['date']     = $value->date;
                 $newArray['stockin']  = 0;
-                $newArray['stockout'] = $value->stockout;
-                $newArray['profit']   = $value->sell - $value->buy;
+                $newArray['stockout'] = number_format($value->stockout);
+                $newArray['profit']   = number_format(($value->sell - $value->buy), 1);
                 array_push($stockSummary, $newArray);
             }
         }
@@ -111,7 +111,18 @@ class StockController extends Controller
             return $object1['date'] < $object2['date'];
         });
 
-        return view('admin.report.stockProduct')->with(['title'=>$title, 'product'=>$product, 'stockSummary'=>$stockSummary, 'lastUpdate'=>$lastUpdate]);
+        foreach($stockSummary as $key=>$stock){
+            $stockSummary[$key]['date'] = SessionController::date_reverse_short($stock['date']);
+        }
+
+        $all_data = [
+            'title'         => $title,
+            'product'       => $product,
+            'stockSummary'  => $stockSummary,
+            'lastUpdate'    => $lastUpdate,
+        ];
+
+        return view('admin.report.stockProduct')->with($all_data);
 
     }
 

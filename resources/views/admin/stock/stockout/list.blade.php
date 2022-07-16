@@ -32,11 +32,11 @@
         @foreach($dataList AS $list)
          <tr>
             <td>{{ $list->product_name }}</td>
-            <td style="text-align:center;">{{ $list->quantity }}</td>
+            <td style="text-align:center;">{{ number_format($list->quantity) }}</td>
             <td style="text-align:left;">
-               {{ "S=".$list->sell }}<br>
-               {{ "B=".$list->buy }}<br>
-               {{ "P=".($list->sell - $list->buy) }}
+               {{ "S=".number_format($list->sell) }}<br>
+               {{ "B=".number_format($list->buy) }}<br>
+               {{ "P=".number_format($list->sell - $list->buy) }}
             </td>
             <td style="text-align: center;"><a href="{{ route('admin.stockout.edit', [$date, $list->product_id]) }}" class="text-primary">Edit</a></td>
          </tr>
