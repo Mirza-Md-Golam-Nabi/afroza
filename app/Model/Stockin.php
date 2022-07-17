@@ -9,6 +9,10 @@ class Stockin extends Model
 {
     protected $table = "stockin_history";
 
+    public function product(){
+        return $this->belongsTo('App\Model\Product', 'product_id', 'id');
+    }
+
     public function singleProduct($product_id){
         return $this->select(
                         'date',
