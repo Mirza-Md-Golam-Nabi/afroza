@@ -43,10 +43,10 @@ class TypeController extends Controller
         try{
             DB::beginTransaction();
 
-            $typeData = new Type;
-            $typeData->type_name = $request->type_name;
-            $typeData->updated_by = auth()->user()->id;
-            $typeData->save();
+            $type = new Type;
+            $type->type_name = $request->type_name;
+            $type->updated_by = auth()->user()->id;
+            $type->save();
 
             DB::commit();
         }catch(Exception $e){
