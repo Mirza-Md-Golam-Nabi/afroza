@@ -1,7 +1,7 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Afroza Traders - {{ $title }}</title>
+  <title>Afroza Traders - {{ $title ?? '' }}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   @include('includes.style')
@@ -10,7 +10,7 @@
 <body>
 
   @include('includes.header')
-  
+
    <div class="wrapper">
 
       @include('includes.sidebar')
@@ -22,7 +22,7 @@
         {{-- @include('includes.footer') --}}
 
       </div>
-      
+
    </div>
 
    @include('includes.scriptextra')

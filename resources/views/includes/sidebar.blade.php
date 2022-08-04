@@ -2,17 +2,17 @@
   <ul class="list-unstyled components">
     <p style="text-align: center;">
       <a href="{{ route('admin.dashboard') }}">Afroza Traders</a>
-      @if(isset(Auth::user()->id))
+      @if(isset(auth()->user()->id))
         <br>
-        <span>User - {{ Auth::user()->mobile }}</span>
+        <span>User - {{ auth()->user()->mobile }}</span>
       @endif
-    </p> 
+    </p>
     <li>
       <a href="#type" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Create</a>
       <ul class="collapse list-unstyled" id="type">
-         <li><a href="{{ route('admin.type.list') }}">Type</a></li>
+         <li><a href="{{ route('types.index') }}">Type</a></li>
          <li><a href="{{ route('admin.category.list') }}">Category</a></li>
-         <li><a href="{{ route('admin.brand.list') }}">Brand</a></li>
+         <li><a href="{{ route('brands.index') }}">Brand</a></li>
          <li><a href="{{ route('admin.product.list') }}">Product</a></li>
       </ul>
     </li>
