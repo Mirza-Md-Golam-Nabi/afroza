@@ -53,7 +53,7 @@ class TypeController extends Controller
             DB::rollback();
         }
 
-        if(!$typeData){
+        if(!$type){
             session()->flash('error','Type does not create successfully.');
             return redirect()->route('types.create')->withInput();
         }
