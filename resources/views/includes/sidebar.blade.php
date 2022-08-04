@@ -2,10 +2,10 @@
   <ul class="list-unstyled components">
     <p style="text-align: center;">
       <a href="{{ route('admin.dashboard') }}">Afroza Traders</a>
-      @if(isset(auth()->user()->id))
+      @auth
         <br>
         <span>User - {{ auth()->user()->mobile }}</span>
-      @endif
+      @endauth
     </p>
     <li>
       <a href="#type" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Create</a>
