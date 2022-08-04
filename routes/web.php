@@ -14,16 +14,17 @@ Route::get('/more/date', 'GeneralController@addMoreDate')->name('general.more.da
 
 // Admin Controller
 
-Route::group(['prefix'=>'admin'], function(){
+Route::group(['middleware'=>['auth'], 'prefix'=>'admin'], function(){
     Route::get('/dashboard','AdminController@index')->name('admin.dashboard');
 
-    Route::group(['prefix'=>'type'], function(){
-        Route::get('/create','TypeController@typeCreate')->name('admin.type.create');
-        Route::post('/store','TypeController@typeStore')->name('admin.type.store');
-        Route::get('/list','TypeController@typeList')->name('admin.type.list');
-        Route::get('/edit/{id}','TypeController@typeEdit')->name('admin.type.edit');
-        Route::post('/update','TypeController@typeUpdate')->name('admin.type.update');
-    });
+    Route::resource('types', 'TypeController')->middleware('admin');
+    // Route::group(['prefix'=>'type'], function(){
+    //     Route::get('/create','TypeController@typeCreate')->name('admin.type.create');
+    //     Route::post('/store','TypeController@typeStore')->name('admin.type.store');
+    //     Route::get('/list','TypeController@typeList')->name('admin.type.list');
+    //     Route::get('/edit/{id}','TypeController@typeEdit')->name('admin.type.edit');
+    //     Route::post('/update','TypeController@typeUpdate')->name('admin.type.update');
+    // });
 
     Route::group(['prefix'=>'brand'], function(){
         Route::get('/create','BrandController@brandCreate')->name('admin.brand.create');

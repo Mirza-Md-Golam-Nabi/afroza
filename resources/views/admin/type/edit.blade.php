@@ -6,9 +6,20 @@
 
 @include('msg')
 
-<form action="{{ route('admin.type.update') }}" method="post" class="mt-3">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+<form action="{{ route('types.update', $type->id) }}" method="post" class="mt-3">
     {{ csrf_field() }}
-    <input type="hidden" name="type_id" value="{{ $type->id }}">
+    @method('PUT')
+    {{-- <input type="hidden" name="type_id" value="{{  }}"> --}}
     <div class="form-group">
         <label for="typeName">Type Name</label>
         <input type="text" name="typeName" class="form-control" id="typeName" value="{{ $type->type_name }}" required autofocus autocomplete="off">
@@ -18,7 +29,7 @@
             </span>
         @endif
     </div>
-    <input type="submit" class="btn btn-primary" value="Update">    
+    <input type="submit" class="btn btn-primary" value="Update">
 </form>
 
 @endsection

@@ -6,19 +6,18 @@
 <div class="clearfix">
    <table class="table table-striped" id="table_id">
       <thead>
-      <tr> 
+      <tr>
           <th scope="col">S.N</th>
           <th scope="col">Type Name</th>
           <th style="text-align:center;" scope="col">Action</th>
       </tr>
       </thead>
       <tbody>
-        @php $i=1; @endphp
-        @foreach($typeList AS $list)
+        @foreach($types AS $type)
          <tr>
-            <th scope="row">{{ $i++ }}</th>
-            <td>{{ $list->type_name }}</td>
-            <td style="text-align: center;"><a href="{{ route('admin.type.edit', $list->id) }}" class="text-primary">Edit</a></td>
+            <th scope="row">{{ $loop->iteration }}</th>
+            <td>{{ $type->type_name }}</td>
+            <td style="text-align: center;"><a href="{{ route('types.edit', $type->id) }}" class="text-primary">Edit</a></td>
          </tr>
         @endforeach
       </tbody>

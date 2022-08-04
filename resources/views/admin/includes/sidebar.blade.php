@@ -10,7 +10,7 @@
       <li>
          <a href="#type" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Create</a>
          <ul class="collapse list-unstyled" id="type">
-            <li><a href="{{ route('admin.type.list') }}">Type</a></li>
+            <li><a href="{{ route('types.index') }}">Type</a></li>
             <li><a href="{{ route('admin.brand.list') }}">Brand</a></li>
             <li><a href="{{ route('admin.category.list') }}">Category</a></li>
             <li><a href="{{ route('admin.product.list') }}">Product</a></li>

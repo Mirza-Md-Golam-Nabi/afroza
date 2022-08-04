@@ -2,43 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Exception;
 
 use App\Model\Type;
-use Auth;
-use DB; 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TypeController extends Controller
 {
     public function __construct(){
-        $help = new HelperController;
-        $this->middleware(function ($request, $next) {
-            if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
-                Auth::logout();
-                return redirect()->route('welcome');
-            }elseif(!isset(Auth::user()->group_id)){
-                return redirect()->route('welcome');
-            }
-            return $next($request); 
-        });
+
     }
-    
-    public function typeCreate(){
+
+    public function index(){
+        $title = "Type List";
+        $create_url = "types.create";
+        $create_text = "Create Type";
+        $types = Type::orderBy('type_name', 'asc')->get();
+
+        $all_data = [
+            'title'         => $title,
+            'create_url'    => $create_url,
+            'create_text'   => $create_text,
+            'types'         => $types
+        ];
+
+        return view('admin.type.list')->with($all_data);
+    }
+
+    public function create(){
         $title = "Type Create";
         return view('admin.type.create')->with(['title'=>$title]);
     }
 
-    public function typeStore(Request $request){
+    public function store(Request $request){
         $this->validate($request, [
             'typeName' => 'required',
         ]);
-        
+
         try{
             DB::beginTransaction();
 
             $typeData = new Type;
             $typeData->type_name = $request->typeName;
-            $typeData->updated_by = Auth::user()->id;
+            $typeData->updated_by = auth()->user()->id;
             $typeData->save();
 
             DB::commit();
@@ -46,60 +53,44 @@ class TypeController extends Controller
             DB::rollback();
         }
 
-        if($typeData){
-            session()->flash('success', 'Type Create Successfully.');
-        }else{
+        if(!$typeData){
             session()->flash('error','Type does not create successfully.');
+            return redirect()->route('types.create')->withInput();
         }
 
-        return redirect()->back()->withInput();
+        return redirect()->route('types.index');
     }
 
-    public function typeList(){
-        $title = "Type List";
-        $create_url = "admin.type.create";
-        $create_text = "Create Type";
-        $typeList = DB::table('types')->orderBy('type_name', 'asc')->get();
-        return view('admin.type.list')->with(['title'=>$title, 'create_url'=>$create_url, 'create_text'=>$create_text, 'typeList'=>$typeList]);
-    }
-
-    public function typeEdit($type_id){
+    public function edit($type_id){
         $title = "Type Edit";
-        $type = DB::table('types')->select('id', 'type_name')->where('id', $type_id)->first();
+        $type = Type::select('id', 'type_name')->find($type_id);
         return view('admin.type.edit')->with(['title'=>$title, 'type'=>$type]);
     }
 
-    public function typeUpdate(Request $request){
+    public function update($id, Request $request){
         $this->validate($request, [
-            'type_id'   => 'required',
             'typeName' => 'required',
         ]);
-
-        $type_id = $request->type_id;
-        $type_name = $request->typeName;
-
-        $typeData = Type::where('id', $type_id)->first();
-        
 
         try{
             DB::beginTransaction();
 
-            $typeData->type_name = $type_name;
-            $typeData->updated_by = Auth::user()->id;
-            $typeData->save();
+            $type = Type::where('id', $id)->update([
+                'type_name' => $request->typeName,
+                'updated_by' => auth()->user()->id
+            ]);
 
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
         }
 
-        if($typeData){
-            session()->flash('success', 'Type Updated Successfully.');
-            return redirect()->route('admin.type.list');
-        }else{
+        if(!$type){
             session()->flash('error','Type does not update successfully.');
-            return redirect()->back()->withInput();
-        }        
+            return redirect()->route('types.edit')->withInput();
+        }
+
+        return redirect()->route('types.index');
     }
 
 }
