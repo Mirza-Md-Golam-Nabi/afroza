@@ -6,7 +6,7 @@
 <div class="clearfix">
    <table class="table table-striped" id="table_id">
       <thead>
-      <tr> 
+      <tr>
           <th scope="col">S.N</th>
           <th scope="col">Type Name</th>
           <th scope="col">Category Name</th>
@@ -14,13 +14,12 @@
       </tr>
       </thead>
       <tbody>
-        @php $i=1; @endphp
-        @foreach($categoryList AS $list)
+        @foreach($categories AS $category)
          <tr>
-            <th scope="row">{{ $i++ }}</th>
-            <td>{{ $list->type_name }}</td>
-            <td>{{ $list->category_name }}</td>
-            <td style="text-align: center;"><a href="{{ route('admin.category.edit', $list->id) }}" class="text-primary">Edit</a></td>
+            <th scope="row">{{ $loop->iteration }}</th>
+            <td>{{ $category->type->type_name }}</td>
+            <td>{{ $category->category_name }}</td>
+            <td style="text-align: center;"><a href="{{ route('categories.edit', $category) }}" class="text-primary">Edit</a></td>
          </tr>
         @endforeach
       </tbody>

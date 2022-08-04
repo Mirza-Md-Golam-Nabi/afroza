@@ -35,13 +35,14 @@ Route::group(['middleware'=>['auth'], 'prefix'=>'admin'], function(){
     //     Route::post('/update','BrandController@brandUpdate')->name('admin.brand.update');
     // });
 
-    Route::group(['prefix'=>'category'], function(){
-        Route::get('/create','CategoryController@categoryCreate')->name('admin.category.create');
-        Route::post('/store','CategoryController@categoryStore')->name('admin.category.store');
-        Route::get('/list','CategoryController@categoryList')->name('admin.category.list');
-        Route::get('/edit/{id}','CategoryController@categoryEdit')->name('admin.category.edit');
-        Route::post('/update','CategoryController@categoryUpdate')->name('admin.category.update');
-    });
+    Route::resource('categories', 'CategoryController')->middleware('admin');
+    // Route::group(['prefix'=>'category'], function(){
+    //     Route::get('/create','CategoryController@categoryCreate')->name('admin.category.create');
+    //     Route::post('/store','CategoryController@categoryStore')->name('admin.category.store');
+    //     Route::get('/list','CategoryController@categoryList')->name('admin.category.list');
+    //     Route::get('/edit/{id}','CategoryController@categoryEdit')->name('admin.category.edit');
+    //     Route::post('/update','CategoryController@categoryUpdate')->name('admin.category.update');
+    // });
 
     Route::group(['prefix'=>'product'], function(){
         Route::get('/create','ProductController@productCreate')->name('admin.product.create');

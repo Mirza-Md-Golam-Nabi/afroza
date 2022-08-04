@@ -12,7 +12,7 @@
          <ul class="collapse list-unstyled" id="type">
             <li><a href="{{ route('types.index') }}">Type</a></li>
             <li><a href="{{ route('brands.index') }}">Brand</a></li>
-            <li><a href="{{ route('admin.category.list') }}">Category</a></li>
+            <li><a href="{{ route('categories.index') }}">Category</a></li>
             <li><a href="{{ route('admin.product.list') }}">Product</a></li>
             <li><a href="{{ route('admin.stock.add') }}">Price Add</a></li>
          </ul>
