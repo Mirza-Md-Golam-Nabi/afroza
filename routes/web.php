@@ -26,13 +26,14 @@ Route::group(['middleware'=>['auth'], 'prefix'=>'admin'], function(){
     //     Route::post('/update','TypeController@typeUpdate')->name('admin.type.update');
     // });
 
-    Route::group(['prefix'=>'brand'], function(){
-        Route::get('/create','BrandController@brandCreate')->name('admin.brand.create');
-        Route::post('/store','BrandController@brandStore')->name('admin.brand.store');
-        Route::get('/list','BrandController@brandList')->name('admin.brand.list');
-        Route::get('/edit/{id}','BrandController@brandEdit')->name('admin.brand.edit');
-        Route::post('/update','BrandController@brandUpdate')->name('admin.brand.update');
-    });
+    Route::resource('brands', 'BrandController')->middleware('admin');
+    // Route::group(['prefix'=>'brand'], function(){
+    //     Route::get('/create','BrandController@brandCreate')->name('admin.brand.create');
+    //     Route::post('/store','BrandController@brandStore')->name('admin.brand.store');
+    //     Route::get('/list','BrandController@brandList')->name('admin.brand.list');
+    //     Route::get('/edit/{id}','BrandController@brandEdit')->name('admin.brand.edit');
+    //     Route::post('/update','BrandController@brandUpdate')->name('admin.brand.update');
+    // });
 
     Route::group(['prefix'=>'category'], function(){
         Route::get('/create','CategoryController@categoryCreate')->name('admin.category.create');

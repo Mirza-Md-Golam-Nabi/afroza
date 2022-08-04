@@ -4,25 +4,24 @@
 @include('admin.includes.createbutton')
 
 <div class="clearfix">
-   <table class="table table-striped" id="table_id">
-      <thead>
-      <tr> 
-          <th scope="col">S.N</th>
-          <th scope="col">Brand Name</th>
-          <th style="text-align:center;" scope="col">Action</th>
-      </tr>
-      </thead>
-      <tbody>
-        @php $i=1; @endphp
-        @foreach($brandList AS $list)
-         <tr>
-            <th scope="row">{{ $i++ }}</th>
-            <td>{{ $list->brand_name }}</td>
-            <td style="text-align: center;"><a href="{{ route('admin.brand.edit', $list->id) }}" class="text-primary">Edit</a></td>
-         </tr>
-        @endforeach
-      </tbody>
-   </table>
+    <table class="table table-striped" id="table_id">
+        <thead>
+            <tr>
+                <th scope="col">S.N</th>
+                <th scope="col">Brand Name</th>
+                <th style="text-align:center;" scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($brands AS $brand)
+            <tr>
+                <th scope="row">{{ $loop->iteration }}</th>
+                <td>{{ $brand->brand_name }}</td>
+                <td style="text-align: center;"><a href="{{ route('brands.edit', $brand->id) }}" class="text-primary">Edit</a></td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 
 @endsection

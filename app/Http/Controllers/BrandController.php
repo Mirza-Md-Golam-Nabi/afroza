@@ -2,103 +2,99 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Exception;
 
 use App\Model\Brand;
-use Auth;
-use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BrandController extends Controller
 {
     public function __construct(){
-        $help = new HelperController;
-        $this->middleware(function ($request, $next) {
-            if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
-                Auth::logout();
-                return redirect()->route('welcome');
-            }elseif(!isset(Auth::user()->group_id)){
-                return redirect()->route('welcome');
-            }
-            return $next($request); 
-        });
+
     }
-    
-    public function brandCreate(){
+
+    public function index(){
+        $title = "Brand List";
+        $create_url = "brands.create";
+        $create_text = "Create Brand";
+        $brands = Brand::orderBy('brand_name', 'asc')->get();
+
+        $all_data = [
+            'title'         => $title,
+            'create_url'    => $create_url,
+            'create_text'   => $create_text,
+            'brands'        => $brands,
+        ];
+
+        return view('admin.brand.list')->with($all_data);
+    }
+
+    public function create(){
         $title = "Brand Create";
         return view('admin.brand.create')->with(['title'=>$title]);
     }
 
-    public function brandStore(Request $request){
+    public function store(Request $request){
         $this->validate($request, [
-            'brandName' => 'required',
+            'brand_name' => 'required',
         ]);
-        
+
         try{
             DB::beginTransaction();
 
-            $brandData = new Brand;
-            $brandData->brand_name = $request->brandName;
-            $brandData->updated_by = Auth::user()->id;
-            $brandData->save();
+            $brand = new Brand;
+            $brand->brand_name = $request->brand_name;
+            $brand->updated_by = auth()->user()->id;
+            $brand->save();
 
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
         }
 
-        if($brandData){
-            session()->flash('success', 'Brand Create Successfully.');
-        }else{
+        if(!$brand){
             session()->flash('error','Brand does not create successfully.');
+            return redirect()->route('brands.create')->withInput();
         }
 
-        return redirect()->back()->withInput();
+        return redirect()->route('brands.index');
     }
 
-    public function brandList(){
-        $title = "Brand List";
-        $create_url = "admin.brand.create";
-        $create_text = "Create Brand";
-        $brandList = DB::table('brands')->orderBy('brand_name', 'asc')->get();
-        return view('admin.brand.list')->with(['title'=>$title, 'create_url'=>$create_url, 'create_text'=>$create_text, 'brandList'=>$brandList]);
-    }
-
-    public function brandEdit($brand_id){
+    public function edit($brand_id){
         $title = "Brand Edit";
-        $brand = DB::table('brands')->select('id', 'brand_name')->where('id', $brand_id)->first();
-        return view('admin.brand.edit')->with(['title'=>$title, 'brand'=>$brand]);
+        $brand = Brand::select('id', 'brand_name')->find($brand_id);
+
+        $all_data = [
+            'title' => $title,
+            'brand' => $brand,
+        ];
+        return view('admin.brand.edit')->with($all_data);
     }
 
-    public function brandUpdate(Request $request){
+    public function update($id, Request $request){
         $this->validate($request, [
-            'brand_id'   => 'required',
-            'brandName' => 'required',
+            'brand_name' => 'required',
         ]);
-
-        $brand_id = $request->brand_id;
-        $brand_name = $request->brandName;
-
-        $brandData = brand::where('id', $brand_id)->first();
-        
 
         try{
             DB::beginTransaction();
 
-            $brandData->brand_name = $brand_name;
-            $brandData->updated_by = Auth::user()->id;
-            $brandData->save();
+            $brand = Brand::where('id', $id)->update([
+                'brand_name' => $request->brand_name,
+                'updated_by' => auth()->user()->id,
+            ]);
 
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
         }
 
-        if($brandData){
-            session()->flash('success', 'Brand Updated Successfully.');
-            return redirect()->route('admin.brand.list');
-        }else{
+        if(!$brand){
             session()->flash('error','Brand does not update successfully.');
-            return redirect()->back()->withInput();
-        }        
+            return redirect()->route('brands.edit')->withInput();
+        }
+
+        return redirect()->route('brands.index');
     }
 }
