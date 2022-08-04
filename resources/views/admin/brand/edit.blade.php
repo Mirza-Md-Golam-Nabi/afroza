@@ -6,7 +6,7 @@
 
 @include('msg')
 
-<form action="{{ route('brands.update', $brand->id) }}" method="post" class="mt-3">
+<form action="{{ route('brands.update', $brand) }}" method="post" class="mt-3">
     {{ csrf_field() }}
     @method('PUT')
 

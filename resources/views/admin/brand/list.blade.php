@@ -17,7 +17,7 @@
             <tr>
                 <th scope="row">{{ $loop->iteration }}</th>
                 <td>{{ $brand->brand_name }}</td>
-                <td style="text-align: center;"><a href="{{ route('brands.edit', $brand->id) }}" class="text-primary">Edit</a></td>
+                <td style="text-align: center;"><a href="{{ route('brands.edit', $brand) }}" class="text-primary">Edit</a></td>
             </tr>
             @endforeach
         </tbody>

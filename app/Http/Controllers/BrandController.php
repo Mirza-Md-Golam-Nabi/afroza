@@ -61,9 +61,8 @@ class BrandController extends Controller
         return redirect()->route('brands.index');
     }
 
-    public function edit($brand_id){
+    public function edit(Brand $brand){
         $title = "Brand Edit";
-        $brand = Brand::select('id', 'brand_name')->find($brand_id);
 
         $all_data = [
             'title' => $title,
@@ -72,7 +71,7 @@ class BrandController extends Controller
         return view('admin.brand.edit')->with($all_data);
     }
 
-    public function update($id, Request $request){
+    public function update(Brand $brand, Request $request){
         $this->validate($request, [
             'brand_name' => 'required',
         ]);
@@ -80,10 +79,9 @@ class BrandController extends Controller
         try{
             DB::beginTransaction();
 
-            $brand = Brand::where('id', $id)->update([
-                'brand_name' => $request->brand_name,
-                'updated_by' => auth()->user()->id,
-            ]);
+            $brand->brand_name = $request->brand_name;
+            $brand->updated_by = auth()->user()->id;
+            $brand->save();
 
             DB::commit();
         }catch(Exception $e){
