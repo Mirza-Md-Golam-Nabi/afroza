@@ -37,14 +37,14 @@ class TypeController extends Controller
 
     public function store(Request $request){
         $this->validate($request, [
-            'typeName' => 'required',
+            'type_name' => 'required',
         ]);
 
         try{
             DB::beginTransaction();
 
             $typeData = new Type;
-            $typeData->type_name = $request->typeName;
+            $typeData->type_name = $request->type_name;
             $typeData->updated_by = auth()->user()->id;
             $typeData->save();
 
@@ -64,19 +64,25 @@ class TypeController extends Controller
     public function edit($type_id){
         $title = "Type Edit";
         $type = Type::select('id', 'type_name')->find($type_id);
-        return view('admin.type.edit')->with(['title'=>$title, 'type'=>$type]);
+
+        $all_data = [
+            'title' => $title,
+            'type'  => $type,
+        ];
+
+        return view('admin.type.edit')->with($all_data);
     }
 
     public function update($id, Request $request){
         $this->validate($request, [
-            'typeName' => 'required',
+            'type_name' => 'required',
         ]);
 
         try{
             DB::beginTransaction();
 
             $type = Type::where('id', $id)->update([
-                'type_name' => $request->typeName,
+                'type_name' => $request->type_name,
                 'updated_by' => auth()->user()->id
             ]);
 

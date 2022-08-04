@@ -6,21 +6,16 @@
 
 @include('msg')
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form action="{{ route('types.store') }}" method="post" class="mt-3">
         {{ csrf_field() }}
         <div class="form-group">
-          <label for="typeName">Type Name</label>
-          <input type="text" name="typeName" class="form-control" id="typeName" autocomplete="off" autofocus required value="{{ old('typeName') }}">
+            <label for="type_name">Type Name</label>
+            <input type="text" name="type_name" class="form-control" id="type_name" autocomplete="off" autofocus required value="{{ old('type_name') }}">
+            @if ($errors->has('type_name'))
+                <span style="color:red;">
+                    {{ $errors->first('type_name') }}
+                </span>
+            @endif
         </div>
         <input type="submit" class="btn btn-primary" value="Submit">
     </form>
