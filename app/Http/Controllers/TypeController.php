@@ -61,9 +61,8 @@ class TypeController extends Controller
         return redirect()->route('types.index');
     }
 
-    public function edit($type_id){
+    public function edit(Type $type){
         $title = "Type Edit";
-        $type = Type::select('id', 'type_name')->find($type_id);
 
         $all_data = [
             'title' => $title,
@@ -73,7 +72,7 @@ class TypeController extends Controller
         return view('admin.type.edit')->with($all_data);
     }
 
-    public function update($id, Request $request){
+    public function update(Type $type, Request $request){
         $this->validate($request, [
             'type_name' => 'required',
         ]);
@@ -81,10 +80,9 @@ class TypeController extends Controller
         try{
             DB::beginTransaction();
 
-            $type = Type::where('id', $id)->update([
-                'type_name' => $request->type_name,
-                'updated_by' => auth()->user()->id
-            ]);
+            $type->type_name  = $request->type_name;
+            $type->updated_by = auth()->user()->id;
+            $type->save();
 
             DB::commit();
         }catch(Exception $e){

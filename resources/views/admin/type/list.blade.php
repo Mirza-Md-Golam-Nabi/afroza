@@ -17,7 +17,7 @@
          <tr>
             <th scope="row">{{ $loop->iteration }}</th>
             <td>{{ $type->type_name }}</td>
-            <td style="text-align: center;"><a href="{{ route('types.edit', $type->id) }}" class="text-primary">Edit</a></td>
+            <td style="text-align: center;"><a href="{{ route('types.edit', $type) }}" class="text-primary">Edit</a></td>
          </tr>
         @endforeach
       </tbody>
