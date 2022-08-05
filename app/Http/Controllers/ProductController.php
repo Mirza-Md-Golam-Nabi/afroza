@@ -10,36 +10,48 @@ use App\Model\Product;
 use App\Model\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
     public function __construct(){
-        $help = new HelperController;
-        $this->middleware(function ($request, $next) {
-            if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
-                Auth::logout();
-                return redirect()->route('welcome');
-            }elseif(!isset(Auth::user()->group_id)){
-                return redirect()->route('welcome');
-            }
-            return $next($request);
-        });
+
     }
 
-    public function productCreate(){
+    public function index(){
+        $title = "Product List";
+        $create_url = "products.create";
+        $create_text = "Create Product";
+        $products = Product::orderBy('status', 'desc')->get();
+
+        $all_data = [
+            'title'         => $title,
+            'create_url'    => $create_url,
+            'create_text'   => $create_text,
+            'products'      => $products,
+        ];
+
+        return view('admin.product.list')->with($all_data);
+    }
+
+    public function create(){
         $title = "Product Create";
-        $typeList = Type::orderBy('type_name', 'asc')->get();
-        $brandList = Brand::where('status', 1)->orderBy('brand_name', 'asc')->get();
+        $types = Type::orderBy('type_name', 'asc')->get();
+        $brands = Brand::where('status', 1)->orderBy('brand_name', 'asc')->get();
 
-        return view('admin.product.create')->with(['title'=>$title, 'typeList'=>$typeList, 'brandList'=>$brandList]);
+        $all_data = [
+            'title'  => $title,
+            'types'  => $types,
+            'brands' => $brands,
+        ];
+
+        return view('admin.product.create')->with($all_data);
     }
 
-    public function productStore(Request $request){
+    public function store(Request $request){
         $this->validate($request, [
-            'type_id'       => 'required',
-            'category_id'   => 'required',
-            'brand_id'      => 'required',
+            'type_id'       => 'required|integer',
+            'category_id'   => 'required|integer',
+            'brand_id'      => 'required|integer',
             'product_name'  => 'required',
             'main_unit'     => 'required',
         ]);
@@ -50,6 +62,7 @@ class ProductController extends Controller
         $product_name   = $request->product_name;
         $main_unit      = $request->main_unit;
         $warning        = $request->warning;
+
         if(empty($warning)){
             $warning = 0;
         }
@@ -77,82 +90,69 @@ class ProductController extends Controller
         try{
             DB::beginTransaction();
 
-            $productData = new Product;
-            $productData->type_id           = $type_id;
-            $productData->category_id       = $category_id;
-            $productData->brand_id          = $brand_id;
-            $productData->product_name      = $product_name;
-            $productData->main_unit         = $main_unit;
-            $productData->others_unit       = $othersUnit;
-            $productData->warning           = $warning;
-            $productData->updated_by        = Auth::user()->id;
-            $productData->save();
+            $product = new Product;
+            $product->type_id       = $type_id;
+            $product->category_id   = $category_id;
+            $product->brand_id      = $brand_id;
+            $product->product_name  = $product_name;
+            $product->main_unit     = $main_unit;
+            $product->others_unit   = $othersUnit;
+            $product->warning       = $warning;
+            $product->updated_by    = auth()->user()->id;
+            $product->save();
 
-            $stockData = new Stock;
-            $stockData->type_id         = $type_id;
-            $stockData->category_id     = $category_id;
-            $stockData->brand_id        = $brand_id;
-            $stockData->product_id      = $productData->id;
-            $stockData->product_name    = $product_name;
-            $stockData->quantity        = 0;
-            $stockData->unit            = $main_unit;
-            $stockData->warning         = $warning;
-            $stockData->current_price   = 0;
-            $stockData->applicable_stock= 0;
-            $stockData->updated_by      = Auth::user()->id;
-            $stockData->save();
+            $stock = new Stock;
+            $stock->type_id         = $type_id;
+            $stock->category_id     = $category_id;
+            $stock->brand_id        = $brand_id;
+            $stock->product_id      = $product->id;
+            $stock->product_name    = $product_name;
+            $stock->quantity        = 0;
+            $stock->unit            = $main_unit;
+            $stock->warning         = $warning;
+            $stock->current_price   = 0;
+            $stock->applicable_stock= 0;
+            $stock->updated_by      = auth()->user()->id;
+            $stock->save();
 
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
         }
 
-        if($productData){
-            session()->flash('success','Product Added Successfully.');
-            return redirect()->route('admin.product.create');
-        }else{
+        if(!$stock){
             session()->flash('error','Product does not Added successfully.');
-            return redirect()->back()->withInput();
+            return redirect()->route('products.create')->withInput();
         }
+        return redirect()->route('products.index');
     }
 
-    public function productList(){
-        $title = "Product List";
-        $create_url = "admin.product.create";
-        $create_text = "Create Product";
-        $productList = DB::table('products as a')
-                    ->leftJoin('categories as c', 'c.id', '=', 'a.category_id')
-                    ->leftJoin('types as d', 'd.id', '=', 'a.type_id')
-                    ->leftJoin('brands as e', 'e.id', '=', 'a.brand_id')
-                    ->select('a.id', 'a.product_name', 'a.main_unit', 'a.others_unit', 'a.warning', 'a.status', 'c.category_name', 'd.type_name', 'e.brand_name')
-                    ->orderBy('a.status', 'desc')
-                    ->orderBy('d.type_name', 'asc')
-                    ->orderBy('c.category_name', 'asc')
-                    ->orderBy('a.product_name', 'asc')
-                    ->get();
-        return view('admin.product.list')->with(['title'=>$title, 'create_url'=>$create_url, 'create_text'=>$create_text, 'productList'=>$productList]);
-    }
-
-    public function productEdit($product_id){
+    public function edit(Product $product){
         $title = "Product Edit";
-        $product = Product::where('id', $product_id)->first();
-        $typeList = Type::orderBy('type_name', 'asc')->get();
-        $brandList = Brand::where('status', 1)->orderBy('brand_name', 'asc')->get();
-        $categoryList = Category::where('type_id', $product->type_id)->orderBy('category_name', 'asc')->get();
-        return view('admin.product.edit')->with(['title'=>$title, 'product'=>$product, 'typeList'=>$typeList, 'brandList'=>$brandList, 'categoryList'=>$categoryList]);
+        $types = Type::orderBy('type_name', 'asc')->get();
+        $brands = Brand::where('status', 1)->orderBy('brand_name', 'asc')->get();
+        $categories = Category::where('type_id', $product->type_id)->orderBy('category_name', 'asc')->get();
+
+        $all_data = [
+            'title'      => $title,
+            'product'    => $product,
+            'types'      => $types,
+            'brands'     => $brands,
+            'categories' => $categories,
+        ];
+
+        return view('admin.product.edit')->with($all_data);
     }
 
-    public function productUpdate(Request $request){
+    public function update(Product $product, Request $request){
         $this->validate($request, [
-            'product_id'    => 'required',
-            'type_id'       => 'required',
-            'brand_id'      => 'required',
-            'category_id'   => 'required',
+            'type_id'       => 'required|integer',
+            'brand_id'      => 'required|integer',
+            'category_id'   => 'required|integer',
             'product_name'  => 'required',
             'main_unit'     => 'required',
         ]);
 
-        $product_id     = $request->product_id;
         $type_id        = $request->type_id;
         $category_id    = $request->category_id;
         $brand_id       = $request->brand_id;
@@ -184,54 +184,55 @@ class ProductController extends Controller
 
         $othersUnit = json_encode($othersUnit);
 
-        $productData = Product::where('id', $product_id)->first();
-        $stockData = Stock::where('product_id', $product_id)->first();
+        $stock = Stock::where('product_id', $product->id)->first();
 
         try{
             DB::beginTransaction();
 
-            $productData->type_id           = $type_id;
-            $productData->category_id       = $category_id;
-            $productData->brand_id          = $brand_id;
-            $productData->product_name      = $product_name;
-            $productData->main_unit         = $main_unit;
-            $productData->others_unit       = $othersUnit;
-            $productData->warning           = $warning;
-            $productData->updated_by        = Auth::user()->id;
-            $productData->save();
+            $product->type_id           = $type_id;
+            $product->category_id       = $category_id;
+            $product->brand_id          = $brand_id;
+            $product->product_name      = $product_name;
+            $product->main_unit         = $main_unit;
+            $product->others_unit       = $othersUnit;
+            $product->warning           = $warning;
+            $product->updated_by        = auth()->user()->id;
+            $product->save();
 
-            $stockData->type_id         = $type_id;
-            $stockData->category_id     = $category_id;
-            $stockData->brand_id        = $brand_id;
-            $stockData->product_id      = $product_id;
-            $stockData->product_name    = $product_name;
-            $stockData->quantity        = $stockData->quantity;
-            $stockData->unit            = $main_unit;
-            $stockData->warning         = $warning;
-            $stockData->updated_by      = Auth::user()->id;
-            $stockData->save();
+            $stock->type_id         = $type_id;
+            $stock->category_id     = $category_id;
+            $stock->brand_id        = $brand_id;
+            $stock->product_id      = $product->id;
+            $stock->product_name    = $product_name;
+            $stock->quantity        = $stock->quantity;
+            $stock->unit            = $main_unit;
+            $stock->warning         = $warning;
+            $stock->updated_by      = auth()->user()->id;
+            $stock->save();
 
             DB::commit();
         }catch(Exception $e){
             DB::rollback();
         }
 
-        if($productData){
-            session()->flash('success','Product Updated Successfully.');
-            return redirect()->route('admin.product.list');
-        }else{
+        if(!$stock){
             session()->flash('error', 'Product does not update Successfully.');
-            return redirect()->back()->withInput();
+            return redirect()->route('products.edit')->withInput();
         }
+        return redirect()->route('products.index');
     }
 
-    public function productStatus(Request $request, $productId){
+    public function productStatus(Request $request){
+        $productId = $request->get('id');
         $status = $request->get('status');
 
         try{
             DB::beginTransaction();
 
-            $update = DB::table('products')->where('id', $productId)->update(['status'=>$status, 'updated_by'=>Auth::user()->id]);
+            $update = Product::where('id', $productId)->update([
+                'status'    => $status,
+                'updated_by'=> auth()->user()->id,
+            ]);
 
             DB::commit();
         }catch(Exception $e){
@@ -242,6 +243,6 @@ class ProductController extends Controller
         }else{
             session()->flash("error", "Something Error.");
         }
-        return redirect()->back();
+        return redirect()->route('products.index');
     }
 }

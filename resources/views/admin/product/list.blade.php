@@ -8,30 +8,27 @@
 <div class="clearfix">
    <table class="table table-striped" id="table_id">
       <thead>
-      <tr> 
+      <tr>
           <th scope="col">S.N</th>
           <th scope="col">Product Name</th>
           <th style="text-align:center;" scope="col">Action</th>
       </tr>
       </thead>
       <tbody>
-        @php $i=1; @endphp
-        @foreach($productList AS $list)
-        <?php $check = $list->status ? 0 : 1; ?>
+        @foreach($products AS $product)
          <tr>
-            <th scope="row">{{ $i++ }}</th>
-            <td data-toggle="modal" data-target="#product{{ $list->id }}" style="cursor: pointer;"><b>{{ $list->product_name }}</b></td>
-            <td style="text-align:center"> 
-               <a class="text-primary" href="{{ route('admin.product.edit', $list->id) }}">Edit</a> ||               
-               <a class="@if($list->status == 1){{ 'text-danger' }} @else {{ 'text-success' }} @endif " href="{{ route('admin.product.status', [$list->id, 'status'=>$check ]) }}">
-                  @if($list->status == 1) {{ 'Inactive' }} @else {{ 'Active' }} @endif
+            <th scope="row">{{ $loop->iteration }}</th>
+            <td data-toggle="modal" data-target="#product{{ $product->id }}" style="cursor: pointer;"><b>{{ $product->product_name }}</b></td>
+            <td style="text-align:center">
+               <a class="text-primary" href="{{ route('products.edit', $product) }}">Edit</a> ||
+               <a class="@if($product->status){{ 'text-danger' }} @else {{ 'text-success' }} @endif " href="{{ route('admin.product.status', ['id'=>$product->id, 'status'=>!$product->status ]) }}">
+                  @if($product->status) {{ 'Inactive' }} @else {{ 'Active' }} @endif
                </a>
-               
             </td>
          </tr>
 
          @include('admin.includes.modalProduct')
- 
+
          @endforeach
 
 
@@ -51,7 +48,7 @@
        });
    });
 
-   
+
 
  </script>
 

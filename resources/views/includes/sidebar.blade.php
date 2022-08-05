@@ -13,7 +13,7 @@
          <li><a href="{{ route('types.index') }}">Type</a></li>
          <li><a href="{{ route('categories.index') }}">Category</a></li>
          <li><a href="{{ route('brands.index') }}">Brand</a></li>
-         <li><a href="{{ route('admin.product.list') }}">Product</a></li>
+         <li><a href="{{ route('products.index') }}">Product</a></li>
       </ul>
     </li>
     <li>

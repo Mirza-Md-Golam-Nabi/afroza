@@ -44,15 +44,17 @@ Route::group(['middleware'=>['auth'], 'prefix'=>'admin'], function(){
     //     Route::post('/update','CategoryController@categoryUpdate')->name('admin.category.update');
     // });
 
-    Route::group(['prefix'=>'product'], function(){
-        Route::get('/create','ProductController@productCreate')->name('admin.product.create');
-        Route::post('/store','ProductController@productStore')->name('admin.product.store');
-        Route::get('/list','ProductController@productList')->name('admin.product.list');
-        Route::get('/edit-{id}','ProductController@productEdit')->name('admin.product.edit');
-        Route::post('/update','ProductController@productUpdate')->name('admin.product.update');
-        Route::get('/status-{id}','ProductController@productStatus')->name('admin.product.status');
-        Route::get('/del','ProductController@delete')->name('admin.product.more.image.delete');
-    });
+    Route::resource('products', 'ProductController')->middleware('admin');
+    Route::get('/status','ProductController@productStatus')->name('admin.product.status');
+    // Route::group(['prefix'=>'product'], function(){
+    //     Route::get('/create','ProductController@productCreate')->name('admin.product.create');
+    //     Route::post('/store','ProductController@productStore')->name('admin.product.store');
+    //     Route::get('/list','ProductController@productList')->name('admin.product.list');
+    //     Route::get('/edit-{id}','ProductController@productEdit')->name('admin.product.edit');
+    //     Route::post('/update','ProductController@productUpdate')->name('admin.product.update');
+    //     Route::get('/status-{id}','ProductController@productStatus')->name('admin.product.status');
+    //     Route::get('/del','ProductController@delete')->name('admin.product.more.image.delete');
+    // });
 
     Route::group(['prefix'=>'stockin'], function(){
         Route::get('/create','StockinController@stockinCreate')->name('admin.stockin.create');
