@@ -47,20 +47,6 @@
 @section('extrascript')
 
 <script>
-    // $(document).ready(function(){
-    //     $('#type_id').change(function(){
-    //         var typeId = $('#type_id').val();
-    //         if(typeId != ''){
-    //             $.ajax({
-    //                 url: "{{ route('general.brand.fetch') }}?type-id=" + typeId,
-    //                 method: 'GET',
-    //                 success: function(data) {
-    //                     $('#brand_id').html(data);
-    //                 }
-    //             });
-    //         }
-    //     });
-    // });
 
 </script>
 
