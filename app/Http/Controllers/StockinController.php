@@ -13,6 +13,39 @@ use Illuminate\Support\Facades\DB;
 
 class StockinController extends Controller
 {
+    public function stockinDate(){
+        $title = "Stock In Date";
+        $url = "stockins.index";
+        $data = SessionController::stockDate('stockin_history');
+
+        $all_data = [
+            'title' => $title,
+            'url'   => $url,
+            'data'  => $data,
+            'model' => 'App\\\Model\\\Stockin',
+        ];
+
+        return view('admin.stock.stockDate')->with($all_data);
+    }
+
+    public function index(Request $request){
+        $date = $request->get('date');
+        $title = "Stock-in History by Group";
+
+        $stockin = new Stockin();
+        $stocks = $stockin->dateWiseGroupProduct($date);
+        $lastUpdate = $stockin->updateTimeForAll($date)->updated_at;
+
+        $all_data = [
+            'title'      => $title,
+            'stocks'     => $stocks,
+            'date'       => $date,
+            'lastUpdate' => $lastUpdate,
+        ];
+
+        return view('admin.stock.stockin.list')->with($all_data);
+    }
+
     public function create(){
         $title = "Stock In";
         $product = new Product();
@@ -109,24 +142,6 @@ class StockinController extends Controller
             session()->flash('error','Stock does not Added successfully.');
             return redirect()->route('stockins.create')->withInput();
         }
-    }
-
-    public function index(Request $request){
-        $date = $request->get('date');
-        $title = "Stock-in History by Group";
-
-        $stockin = new Stockin();
-        $stocks = $stockin->dateWiseGroupProduct($date);
-        $lastUpdate = $stockin->updateTimeForAll($date)->updated_at;
-
-        $all_data = [
-            'title'      => $title,
-            'stocks'     => $stocks,
-            'date'       => $date,
-            'lastUpdate' => $lastUpdate,
-        ];
-
-        return view('admin.stock.stockin.list')->with($all_data);
     }
 
     public function stockinListAll(Request $request){
@@ -266,20 +281,5 @@ class StockinController extends Controller
 
         session()->flash('success','Stock Updated Successfully.');
         return redirect()->route('stockins.index', ['date' => $date]);
-    }
-
-    public function stockinDate(){
-        $title = "Stock In Date";
-        $url = "stockins.index";
-        $data = SessionController::stockDate('stockin_history');
-
-        $all_data = [
-            'title' => $title,
-            'url'   => $url,
-            'data'  => $data,
-            'model' => 'App\\\Model\\\Stockin',
-        ];
-
-        return view('admin.stock.stockDate')->with($all_data);
     }
 }
