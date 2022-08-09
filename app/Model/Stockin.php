@@ -31,4 +31,28 @@ class Stockin extends Model
     public function updateTimeForAll($date){
         return $this->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
     }
+
+    public function dateWiseGroupProduct($date){
+        return $this->select(
+                'product_id',
+                DB::raw('SUM(quantity) as quantity'),
+                DB::raw('AVG(buying_price) as price')
+            )
+            ->where('date', $date)
+            ->groupBy('product_id')
+            ->get();
+    }
+
+    public function dateWiseAllProduct($date){
+        return $this->select('product_id', 'quantity', 'buying_price as price')
+                ->where('date', $date)
+                ->get();
+    }
+
+    public function dateWiseSingleProduct($input){
+        return $this->where([
+            ['date', '=', $input['date']],
+            ['product_id', '=', $input['product_id']],
+        ])->get();
+    }
 }

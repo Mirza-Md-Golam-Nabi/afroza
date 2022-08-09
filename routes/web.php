@@ -56,13 +56,14 @@ Route::group(['middleware'=>['auth'], 'prefix'=>'admin'], function(){
     //     Route::get('/del','ProductController@delete')->name('admin.product.more.image.delete');
     // });
 
+    Route::resource('stockins', 'StockinController')->middleware('admin');
     Route::group(['prefix'=>'stockin'], function(){
-        Route::get('/create','StockinController@stockinCreate')->name('admin.stockin.create');
-        Route::post('/store','StockinController@stockinStore')->name('admin.stockin.store');
-        Route::get('/list/group/{date}','StockinController@stockinList')->name('admin.stockin.list');
-        Route::get('/list/all/{date}','StockinController@stockinListAll')->name('admin.stockin.list.all');
-        Route::get('/edit-{date}/{id}','StockinController@stockinEdit')->name('admin.stockin.edit');
-        Route::post('/update','StockinController@stockinUpdate')->name('admin.stockin.update');
+        // Route::get('/create','StockinController@create')->name('admin.stockin.create');
+        // Route::post('/store','StockinController@store')->name('admin.stockin.store');
+        // Route::get('/list/group/{date}','StockinController@index')->name('admin.stockin.list');
+        // Route::get('/edit-{date}/{id}','StockinController@edit')->name('admin.stockin.edit');
+        // Route::post('/update','StockinController@update')->name('admin.stockin.update');
+        Route::get('/list/all','StockinController@stockinListAll')->name('admin.stockin.list.all');
         Route::get('/date', 'StockinController@stockinDate')->name('admin.stockin.date');
     });
 

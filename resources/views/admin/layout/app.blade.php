@@ -20,7 +20,7 @@
 
       <div class="content mb-4" id="content" onclick="sidebar()">
         <div class="d-flex justify-content-around mb-3">
-          <a href="{{ route('admin.stockin.create') }}" style="border: 1px solid gray; padding:5px 25px;border-radius:10px;">
+          <a href="{{ route('stockins.create') }}" style="border: 1px solid gray; padding:5px 25px;border-radius:10px;">
             <div>Stock in</div>
           </a>
           <a href="{{ route('admin.stockout.create') }}" style="border: 1px solid gray; padding:5px 25px;border-radius:10px;">

@@ -7,9 +7,9 @@
    <div class="d-flex justify-content-end">
       <a href="{{ route('admin.stockin.date') }}" class="btn btn-primary">Stock-in History</a>
    </div>
-   <form action="{{ route('admin.stockin.update') }}" method="post" class="mt-3">
-      {{ csrf_field() }}
-      <input type="hidden" name="oldProductId" value="{{ $productId }}">
+   <form action="{{ route('stockins.update', $productId) }}" method="post" class="mt-3">
+      @csrf
+      @method('PUT')
       <input type="hidden" name="oldDate" value="{{ $date }}">
       <div class="form-group">
          <label for="invoice">Invoice ID <small class="text-muted">(optional)</small></label>
@@ -20,34 +20,33 @@
          <input type="date" name="date" class="form-control" id="date" autocomplete="off" required value="{{ $date }}">
       </div>
       <div class="form-group">
-         <label for="">Product</label> 
+         <label for="">Product</label>
          <div id="product">
-            @php $i=1; @endphp
-            @foreach($stockinList as $stockin)
-            <div id="div{{ $i }}">
-               <div class="d-flex justify-content-around flex-grow-1 mb-1">  
+            @foreach($stocks as $stock)
+            <div id="div{{ $loop->iteration }}">
+               <div class="d-flex justify-content-around flex-grow-1 mb-1">
                   <select name="product_id[]" required class="form-control mr-1">
                      <option value="">Please Select One</option>
-                     @foreach($productList as $list)
-                        @if($stockin->product_id == $list->id)
-                        <option value="{{ $list->id }}" selected>{{ $list->product_name }}</option>
+                     @foreach($products as $product)
+                        @if($stock->product_id == $product->id)
+                            <option value="{{ $product->id }}" selected>{{ $product->product_name }}</option>
                         @else
-                        <option value="{{ $list->id }}">{{ $list->product_name }}</option>
+                            <option value="{{ $product->id }}">{{ $product->product_name }}</option>
                         @endif
                      @endforeach
                   </select>
                   <span class="btn ml-1">&nbsp;&nbsp;&nbsp;</span>
                </div>
                <div class="d-flex justify-content-around mb-4">
-                  <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity" value="{{ $stockin->quantity }}">
-                  <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price" value="{{ $stockin->buying_price }}">
-                  <span class="btn ml-1 btn-danger btn_remove_product" id="{{ $i++ }}">X</span>
+                  <input type="number" name="quantity[]" required class="form-control mr-1" placeholder="Quantity" value="{{ $stock->quantity }}">
+                  <input type="number" name="price[]" required class="form-control mr-1" placeholder="Price" value="{{ $stock->buying_price }}">
+                  <span class="btn ml-1 btn-danger btn_remove_product" id="{{ $loop->iteration }}">X</span>
                </div>
             </div>
             @endforeach
          </div>
      </div>
-      <input type="submit" class="btn btn-primary" value="Update">    
+      <input type="submit" class="btn btn-primary" value="Update">
    </form>
 
 
@@ -61,7 +60,7 @@
       var button_id = $(this).attr("id");
       $('#div'+button_id).remove();
    });
-   
+
 </script>
 
 @endsection

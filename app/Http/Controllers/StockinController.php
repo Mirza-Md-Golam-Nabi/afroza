@@ -10,37 +10,23 @@ use App\Model\Stockin;
 use App\Model\ProductPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class StockinController extends Controller
 {
-    public function __construct(){
-        $help = new HelperController;
-        $this->middleware(function ($request, $next) {
-            if(isset(Auth::user()->group_id) AND Auth::user()->group_id != 1){
-                Auth::logout();
-                return redirect()->route('welcome');
-            }elseif(!isset(Auth::user()->group_id)){
-                return redirect()->route('welcome');
-            }
-            return $next($request);
-        });
-    }
-
-    public function stockinCreate(){
+    public function create(){
         $title = "Stock In";
         $product = new Product();
-        $productList = $product->activeAll();
+        $products = $product->activeAll();
 
         $all_data = [
-            'title'       => $title,
-            'productList' => $productList,
+            'title'    => $title,
+            'products' => $products,
         ];
 
         return view('admin.stock.stockin.create')->with($all_data);
     }
 
-    public function stockinStore(Request $request){
+    public function store(Request $request){
         $this->validate($request, [
             'date' => 'required',
         ]);
@@ -55,9 +41,18 @@ class StockinController extends Controller
             $invoice = "N/A";
         }
 
-        $stockData = [];
+        if(
+            count($product_id) != count($quantity) ||
+            count($quantity) != count($price) ||
+            count($price) != count($product_id)
+        ){
+            session()->flash('error','Product, Quantity and Price set are not same');
+            return redirect()->route('stockins.create')->withInput();
+        }
+
+        $stocks = [];
         for($i = 0; $i < count($product_id); $i++){
-            array_push($stockData, [
+            array_push($stocks, [
                 'product_id' => $product_id[$i],
                 'quantity'   => $quantity[$i],
                 'price'      => $price[$i],
@@ -67,28 +62,33 @@ class StockinController extends Controller
         try{
             DB::beginTransaction();
 
-            foreach($stockData as $stock){
+            foreach($stocks as $stock){
                 $stockin = new Stockin;
                 $stockin->invoice_id    = $invoice;
                 $stockin->date          = $date;
                 $stockin->product_id    = $stock['product_id'];
                 $stockin->quantity      = $stock['quantity'];
                 $stockin->buying_price  = $stock['price'];
-                $stockin->updated_by    = Auth::user()->id;
+                $stockin->updated_by    = auth()->user()->id;
                 $stockin->save();
+
+                $stock_data = Stock::where('product_id', $stock['product_id'])->update([
+                        'quantity'   => DB::raw('quantity + ' . $stock["quantity"]),
+                        'updated_by' => auth()->user()->id,
+                    ]);
 
                 $productPrice = new ProductPrice();
 
-                $productPriceStatus = 1;
-                if($productPrice->productHas($stock['product_id'])){
-                    $productPriceStatus = 0;
+                $productPriceStatus = 0;
 
-                    $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity + '.$stock["quantity"]), 'updated_by'=>Auth::user()->id]);
-                }else{
-                    $data = Stock::where('product_id', $stock['product_id'])->update(['quantity'=>DB::raw('quantity + '.$stock["quantity"]), 'current_price'=>$stock['price'], 'applicable_stock'=>$stock['quantity'], 'updated_by'=>Auth::user()->id]);
+                if(!$productPrice->productHas($stock['product_id'])){
+                    $stock_data->current_price = $stock['price'];
+                    $stock_data->applicable_stock = $stock['quantity'];
+                    $stock_data->save();
+
+                    $productPriceStatus = 1;
                 }
 
-                $productPrice = new ProductPrice;
                 $productPrice->date         = $date;
                 $productPrice->product_id   = $stock['product_id'];
                 $productPrice->quantity     = $stock['quantity'];
@@ -102,32 +102,26 @@ class StockinController extends Controller
             DB::rollback();
         }
 
-        if($data){
+        if($stock_data){
             session()->flash('success','Stock Added Successfully.');
-            return redirect()->route('admin.stockin.create');
+            return redirect()->route('stockins.create');
         }else{
             session()->flash('error','Stock does not Added successfully.');
-            return redirect()->back()->withInput();
+            return redirect()->route('stockins.create')->withInput();
         }
     }
 
-    public function stockinList($date){
+    public function index(Request $request){
+        $date = $request->get('date');
         $title = "Stock-in History by Group";
-        $stockin = new Stockin();
-        $dataList = DB::table('stockin_history as a')
-                ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                ->select('a.product_id', DB::raw('SUM(a.quantity) as quantity'), DB::raw('SUM(a.buying_price) as price'), 'b.product_name')
-                ->where('a.date', $date)
-                ->groupBy('a.date', 'a.product_id')
-                ->orderBy('b.product_name', 'asc')
-                ->get();
 
-        $inLast  = $stockin->updateTimeForAll($date);
-        $lastUpdate = $inLast->updated_at;
+        $stockin = new Stockin();
+        $stocks = $stockin->dateWiseGroupProduct($date);
+        $lastUpdate = $stockin->updateTimeForAll($date)->updated_at;
 
         $all_data = [
             'title'      => $title,
-            'dataList'   => $dataList,
+            'stocks'     => $stocks,
             'date'       => $date,
             'lastUpdate' => $lastUpdate,
         ];
@@ -135,22 +129,17 @@ class StockinController extends Controller
         return view('admin.stock.stockin.list')->with($all_data);
     }
 
-    public function stockinListAll($date){
+    public function stockinListAll(Request $request){
+        $date = $request->get('date');
         $title = "Stock-in History by All";
-        $stockin = new Stockin();
-        $dataList = DB::table('stockin_history as a')
-                ->leftJoin('products as b', 'b.id', '=', 'a.product_id')
-                ->select('a.product_id', 'a.quantity', 'a.buying_price as price', 'b.product_name')
-                ->where('a.date', $date)
-                ->orderBy('b.product_name', 'asc')
-                ->get();
 
-        $inLast  = $stockin->updateTimeForAll($date);
-        $lastUpdate = $inLast->updated_at;
+        $stockin = new Stockin();
+        $stocks = $stockin->dateWiseAllProduct($date);
+        $lastUpdate = $stockin->updateTimeForAll($date)->updated_at;
 
         $all_data = [
             'title'      => $title,
-            'dataList'   => $dataList,
+            'stocks'     => $stocks,
             'date'       => $date,
             'lastUpdate' => $lastUpdate,
         ];
@@ -158,32 +147,33 @@ class StockinController extends Controller
         return view('admin.stock.stockin.list')->with($all_data);
     }
 
-    public function stockinEdit($date, $product_id){
+    public function edit($product_id, Request $request){
+        $date = $request->get('date');
         $title = "Stock In Edit";
-        $stockinList = Stockin::where('date', $date)->where('product_id', $product_id)->get();
+
+        $stockin = new Stockin();
+        $stocks = $stockin->dateWiseSingleProduct(['date'=>$date, 'product_id'=>$product_id]);
 
         $product = new Product();
-        $productList = $product->activeAll();
+        $products = $product->activeAll();
 
         $all_data = [
-            'title'         => $title,
-            'stockinList'   => $stockinList,
-            'productList'   => $productList,
-            'date'          => $date,
-            'productId'     => $product_id,
+            'title'     => $title,
+            'stocks'    => $stocks,
+            'products'  => $products,
+            'date'      => $date,
+            'productId' => $product_id,
         ];
 
         return view('admin.stock.stockin.edit')->with($all_data);
     }
 
-    public function stockinUpdate(Request $request){
+    public function update($oldProductId, Request $request){
         $this->validate($request, [
-            'oldProductId'  => 'required',
             'oldDate'       => 'required',
             'date'          => 'required',
         ]);
 
-        $oldProductId = $request->oldProductId;
         $oldDate    = $request->oldDate;
         $invoice    = $request->invoice;
         $date       = $request->date;
@@ -193,6 +183,15 @@ class StockinController extends Controller
 
         if(empty($invoice)){
             $invoice = "N/A";
+        }
+
+        if(
+            count($product_id) != count($quantity) ||
+            count($quantity) != count($price) ||
+            count($price) != count($product_id)
+        ){
+            session()->flash('error', 'Product, Quantity and Price set are not same');
+            return redirect()->route('stockins.edit', [$oldProductId, 'date' => $oldDate])->withInput();
         }
 
         $allProduct = [];
@@ -206,14 +205,11 @@ class StockinController extends Controller
             }
         }else{
             session()->flash('error','Stock does not Update successfully.');
-            return redirect()->back()->withInput();
+            return redirect()->route('stockins.edit', [$oldProductId, 'date' => $oldDate])->withInput();
         }
 
         $stockIn = Stockin::select('quantity')->where('date', $oldDate)->where('product_id', $oldProductId)->get();
-        $allTotal = 0;
-        foreach($stockIn as $stock){
-            $allTotal += $stock->quantity;
-        }
+        $allTotal = $stockIn ? $stockIn->sum('quantity') : 0;
 
         try{
             DB::beginTransaction();
@@ -221,35 +217,40 @@ class StockinController extends Controller
             Stockin::where('date', $oldDate)->where('product_id', $oldProductId)->delete();
             ProductPrice::where('date', $oldDate)->where('product_id', $oldProductId)->delete();
 
-            $stock = Stock::where('product_id', $oldProductId)->update(['quantity' => DB::raw('quantity - '.$allTotal)]);
+            $stock = Stock::where('product_id', $oldProductId)->update([
+                'quantity' => DB::raw('quantity - ' . $allTotal)
+            ]);
 
             foreach($allProduct as $product){
-                $productPriceCheck = DB::table('product_price')->where('product_id', $product['productId'])->where('status', 1)->first();
+                $productPrice = new ProductPrice();
+                $productPriceStatus = 0;
 
-                $productPriceStatus = 1;
-                if($productPriceCheck){
-                    $productPriceStatus = 0;
+                $stock = Stock::where('product_id', $product['productId'])->update([
+                    'quantity' => DB::raw('quantity + ' . $product['quantity']),
+                    'updated_by' => auth()->user()->id
+                ]);
 
-                    Stock::where('product_id', $product['productId'])->update(['quantity' => DB::raw('quantity + '.$product['quantity']), 'updated_by'=>Auth::user()->id]);
-                }else{
-                    Stock::where('product_id', $product['productId'])->update(['quantity' => DB::raw('quantity + '.$product['quantity']), 'current_price'=>$product['price'], 'applicable_stock'=>$product['quantity'], 'updated_by'=>Auth::user()->id]);
+                if(!$productPrice->productHas($product['productId'])){
+                    $productPriceStatus = 1;
+                    $stock->current_price = $product['price'];
+                    $stock->applicable_stock = $product['quantity'];
+                    $stock->save();
                 }
 
-                $productPrice = new ProductPrice;
-                $productPrice->date         = $date;
-                $productPrice->product_id   = $product['productId'];
-                $productPrice->quantity     = $product['quantity'];
-                $productPrice->price        = $product['quantity'] * $product['price'];
-                $productPrice->status       = $productPriceStatus;
+                $productPrice->date       = $date;
+                $productPrice->product_id = $product['productId'];
+                $productPrice->quantity   = $product['quantity'];
+                $productPrice->price      = $product['quantity'] * $product['price'];
+                $productPrice->status     = $productPriceStatus;
                 $productPrice->save();
 
                 $stockin = new Stockin;
-                $stockin->invoice_id    = $invoice;
-                $stockin->date          = $date;
-                $stockin->product_id    = $product['productId'];
-                $stockin->quantity      = $product['quantity'];
-                $stockin->buying_price  = $product['price'];
-                $stockin->updated_by    = Auth::user()->id;
+                $stockin->invoice_id   = $invoice;
+                $stockin->date         = $date;
+                $stockin->product_id   = $product['productId'];
+                $stockin->quantity     = $product['quantity'];
+                $stockin->buying_price = $product['price'];
+                $stockin->updated_by   = auth()->user()->id;
                 $stockin->save();
             }
 
@@ -258,18 +259,18 @@ class StockinController extends Controller
             DB::rollback();
         }
 
-        if($stockin){
-            session()->flash('success','Stock Updated Successfully.');
-            return redirect()->route('admin.stockin.list.all', $date);
-        }else{
+        if(!$stockin){
             session()->flash('error','Stock does not Update successfully.');
-            return redirect()->back()->withInput();
+            return redirect()->route('stockins.edit', [$oldProductId, 'date' => $date])->withInput();
         }
+
+        session()->flash('success','Stock Updated Successfully.');
+        return redirect()->route('stockins.index', ['date' => $date]);
     }
 
     public function stockinDate(){
         $title = "Stock In Date";
-        $url = "admin.stockin.list.all";
+        $url = "stockins.index";
         $data = SessionController::stockDate('stockin_history');
 
         $all_data = [

@@ -28,7 +28,7 @@
          <a href="#stock" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Stock</a>
          <ul class="collapse list-unstyled" id="stock">
             <li><a href="{{ route('admin.stock.current') }}">Current Stock</a></li>
-            <li><a href="{{ route('admin.stockin.create') }}">Stock-in</a></li>
+            <li><a href="{{ route('stockins.create') }}">Stock-in</a></li>
             <li><a href="{{ route('admin.stockin.date') }}">Stock-in History</a></li>
             <li><a href="{{ route('admin.stockout.create') }}">Stock-out</a></li>
             <li><a href="{{ route('admin.stockout.date') }}">Stock-out History</a></li>
