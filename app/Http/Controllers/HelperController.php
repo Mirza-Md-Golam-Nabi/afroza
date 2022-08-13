@@ -12,11 +12,11 @@ class HelperController extends Controller
 
     public function lastUpdate($inTime, $outTime){
         if($inTime && $outTime){
-            $lastUpdate = $inTime->updated_at > $outTime->updated_at ? $inTime->updated_at : $outTime->updated_at;
+            $lastUpdate = $inTime > $outTime ? $inTime : $outTime;
         }elseif($inTime){
-            $lastUpdate = $inTime->updated_at;
+            $lastUpdate = $inTime;
         }elseif($outTime){
-            $lastUpdate = $outTime->updated_at;
+            $lastUpdate = $outTime;
         }else{
             $lastUpdate = NULL;
         }

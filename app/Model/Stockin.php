@@ -24,12 +24,12 @@ class Stockin extends Model
                     ->get();
     }
 
-    public function updateTimeForProduct($product_id){
-        return $this->select('updated_at')->where('product_id', $product_id)->orderBy('id','desc')->first();
+    public function lastUpdateTimeForProduct($product_id){
+        return $this->where('product_id', $product_id)->latest('updated_at')->value('updated_at');
     }
 
-    public function updateTimeForAll($date){
-        return $this->select('updated_at')->where('date', $date)->orderBy('id','desc')->first();
+    public function lastUpdateTimeForAll($date){
+        return $this->where('date', $date)->latest('updated_at')->value('updated_at');
     }
 
     public function dateWiseGroupProduct($date){

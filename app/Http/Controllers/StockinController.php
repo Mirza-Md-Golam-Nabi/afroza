@@ -34,7 +34,7 @@ class StockinController extends Controller
 
         $stockin = new Stockin();
         $stocks = $stockin->dateWiseGroupProduct($date);
-        $lastUpdate = $stockin->updateTimeForAll($date)->updated_at;
+        $lastUpdate = $stockin->lastUpdateTimeForAll($date);
 
         $all_data = [
             'title'      => $title,
@@ -150,7 +150,7 @@ class StockinController extends Controller
 
         $stockin = new Stockin();
         $stocks = $stockin->dateWiseAllProduct($date);
-        $lastUpdate = $stockin->updateTimeForAll($date)->updated_at;
+        $lastUpdate = $stockin->lastUpdateTimeForAll($date);
 
         $all_data = [
             'title'      => $title,

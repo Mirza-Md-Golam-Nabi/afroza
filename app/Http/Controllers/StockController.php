@@ -60,8 +60,8 @@ class StockController extends Controller
         $stockout = new Stockout();
         $stockoutData = $stockout->singleProduct($product_id);
 
-        $inLast  = $stockin->updateTimeForProduct($product_id);
-        $outLast = $stockout->updateTimeForProduct($product_id);
+        $inLast  = $stockin->lastUpdateTimeForProduct($product_id);
+        $outLast = $stockout->lastUpdateTimeForProduct($product_id);
 
         $lastUpdate = $this->helper->lastUpdate($inLast, $outLast);
 
