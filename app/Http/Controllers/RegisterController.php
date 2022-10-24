@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\User;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-use App\User;
-use DB;
-use Auth;
- 
 class RegisterController extends Controller
 {
     public function __construct(){
@@ -20,7 +21,7 @@ class RegisterController extends Controller
             'mobileNumber' => 'required|digits:11',
             'password'     => 'required',
         ]);
-        
+
         $data = ['mobile'  => $request->mobileNumber, 'password' => $request->password];
         Auth::attempt($data);
         if(isset(Auth::user()->group_id) && (Auth::user()->group_id == 1)){
@@ -29,7 +30,7 @@ class RegisterController extends Controller
             Auth::logout();
             return redirect()->route('welcome');
         }
-        
+
     }
 
     public function passForget(){
